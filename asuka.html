@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASUKA</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: #111;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+  }
+
+  header {
+    width: 100%;
+    padding: 1.5rem;
+    text-align: left;
+  }
+
+  header a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: color 0.2s;
+  }
+
+  header a:hover {
+    color: #ccc;
+  }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 900px;
+    padding: 1rem;
+  }
+
+  #portfolio-img {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    margin-bottom: 1.5rem;
+  }
+
+  #portfolio-title {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  #portfolio-desc {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #ddd;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">← Back to Gallery</a>
+</header>
+
+<main>
+  <img id="portfolio-img" alt="Portfolio Item" />
+  <h1 id="portfolio-title">Loading...</h1>
+  <p id="portfolio-desc"></p>
+</main>
+
+<script>
+  // URL 파라미터에서 id 읽기
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  // 이미지 띄우기
+  const img = document.getElementById("portfolio-img");
+  const title = document.getElementById("portfolio-title");
+  const desc = document.getElementById("portfolio-desc");
+
+  if (id) {
+    img.src = id;
+    title.textContent = "My Artwork";
+    desc.textContent = "이 작품은 제 포트폴리오의 일부로, 특별한 아이디어와 감각을 담아 제작했습니다. 더 자세한 설명은 추후 업데이트될 예정입니다.";
+  } else {
+    title.textContent = "Not Found";
+    desc.textContent = "잘못된 접근입니다.";
+  }
+</script>
+
+</body>
+</html>

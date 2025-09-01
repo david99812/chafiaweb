@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FIA CHA</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <h1 class="title">FIA CHA</h1>
+    <a href="https://docs.google.com/spreadsheets/d/1VMpg0czARRMA-GdIcCM3CpmuAvJRNiIi5zSVAr8XuRg/edit?usp=sharing"
+       class="cv-link" target="_blank" rel="noopener noreferrer">CV</a>
+  </header>
+
+  <main>
+    <div class="frame-wrap">
+      <div class="frame">
+        <img src="https://res.cloudinary.com/dliik4zdd/image/upload/v1756234933/frame_wrap_pmz4yg.png"
+             alt="film" class="film" />
+        
+        <!-- 버튼 자리 -->
+        <div class="placehalfleft" data-slot="0" style="right: 81.1%; top: 48.5%;"></div>
+        <div class="place" data-slot="1" style="left: 19.65%; top: 48.5%;"></div>
+        <div class="place" data-slot="2" style="left: 39.8%; top: 48.1%;"></div>
+        <div class="place" data-slot="3" style="left: 60.2%; top: 47.7%;"></div>
+        <div class="placehalfright" data-slot="4" style="left: 80.3%; top: 47.5%;"></div>
+
+        <!-- 버튼 5개 -->
+        <button class="video-btn" data-index="0" data-title="a" onclick="window.location.href='feature.html';">
+          <video src="https://res.cloudinary.com/dliik4zdd/video/upload/v1756239540/btn_1_ef4oym.mp4"
+                 muted loop autoplay playsinline></video>
+          <span class="btn-title">Feature</span>
+        </button>
+        <button class="video-btn" data-index="1" data-title="b" onclick="window.location.href='modeling.html';">
+          <video src="https://res.cloudinary.com/dliik4zdd/video/upload/v1756244732/btn_2_pltbmq.mp4"
+                 muted loop autoplay playsinline></video>
+          <span class="btn-title">Modeling</span>
+        </button>
+        <button class="video-btn" data-index="2" data-title="c" onclick="window.location.href='chromakey.html';">
+          <video src="https://res.cloudinary.com/dliik4zdd/video/upload/v1756244739/btn_3_vklwzt.mp4"
+                 muted loop autoplay playsinline></video>
+          <span class="btn-title">Chroma Key</span>
+        </button>
+        <button class="video-btn" data-index="3" data-title="d" onclick="window.location.href='lighting.html';">
+          <video src="https://res.cloudinary.com/dliik4zdd/video/upload/v1756244748/btn_4_w5kzsr.mp4"
+                 muted loop autoplay playsinline></video>
+          <span class="btn-title">Lighting</span>
+        </button>
+        <button class="video-btn" data-index="4" data-title="e" onclick="window.location.href='directing.html';">
+          <video src="https://res.cloudinary.com/dliik4zdd/video/upload/v1756244758/btn_5_gyt3v3.mp4"
+                 muted loop autoplay playsinline></video>
+          <span class="btn-title">Directing</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Carousel dots -->
+    <div class="carousel">
+      <button class="carousel-dot" data-target="0"></button>
+      <button class="carousel-dot" data-target="1"></button>
+      <button class="carousel-dot" data-target="2"></button>
+      <button class="carousel-dot" data-target="3"></button>
+      <button class="carousel-dot" data-target="4"></button>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

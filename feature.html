@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FIA CHA</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #000;
+    overflow: hidden;
+    font-family: sans-serif;
+  }
+
+  .container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    transition: all 0.8s ease;
+  }
+
+  .scene-wrapper {
+    flex: 1;
+    height: 100%;
+    perspective: 1200px;
+    overflow: hidden;
+    position: relative;
+    transition: flex 0.8s ease;
+  }
+
+  .camera {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.1s linear;
+  }
+
+  .photo {
+    position: absolute;
+    width: 280px;
+    height: 180px;
+    object-fit: cover;
+    cursor: pointer;
+    border-radius: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    transition: transform 0.3s ease;
+  }
+
+  /* 오른쪽 포트폴리오 패널 */
+  .info-panel {
+    flex: 0;
+    background: #000;
+    color: #000;
+    overflow-y: auto;
+    transition: flex 0.8s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    padding: 20px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  .info-panel img,
+  .info-panel h2,
+  .info-panel p {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.6s ease;
+  }
+
+  .info-panel.show img,
+  .info-panel.show h2,
+  .info-panel.show p {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .info-panel img {
+    max-width: 90%;
+    margin-bottom: 20px;
+  }
+
+  .info-panel h2 {
+    margin: 10px 0;
+  }
+
+  .info-panel p {
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="scene-wrapper">
+    <div class="camera" id="camera"></div>
+  </div>
+  <div class="info-panel" id="infoPanel">
+    <!-- 클릭 시 정보 표시 -->
+  </div>
+</div>
+
+<script>
+const camera = document.getElementById("camera");
+const infoPanel = document.getElementById("infoPanel");
+
+// 6장의 이미지 (첫 번째는 사나 사진)
+const images = [
+  {
+    src: "https://www.fightersgeneration.com/np9/characters/heihachi-tekken6-burning.jpg",
+    title: "Sana",
+    description: "패배자여."
+  },
+  { src: "https://picsum.photos/id/1015/400/250", title: "Image 2", description: "설명 2" },
+  { src: "https://picsum.photos/id/1025/400/250", title: "Image 3", description: "설명 3" },
+  { src: "https://picsum.photos/id/1035/400/250", title: "Image 4", description: "설명 4" },
+  { src: "https://picsum.photos/id/1045/400/250", title: "Image 5", description: "설명 5" },
+  { src: "https://picsum.photos/id/1055/400/250", title: "Image 6", description: "설명 6" },
+];
+
+const photos = [];
+
+images.forEach(data => {
+  const img = document.createElement("img");
+  img.src = data.src;
+  img.className = "photo";
+  camera.appendChild(img);
+
+  const angle = Math.random() * Math.PI * 2;
+  const radius = 800 + Math.random() * 400;
+  const x = Math.cos(angle) * radius;
+  const y = (Math.random() - 0.5) * 600;
+  const z = Math.sin(angle) * radius;
+
+  img.dataset.x = x;
+  img.dataset.y = y;
+  img.dataset.z = z;
+  img.dataset.title = data.title;
+  img.dataset.description = data.description;
+
+  img.addEventListener("click", () => {
+    // 2분할 레이아웃 활성화
+    document.querySelector(".scene-wrapper").style.flex = "1";
+    infoPanel.style.flex = "1";
+
+    // 정보 표시
+    infoPanel.innerHTML = `
+      <img src="${data.src}" alt="${data.title}">
+      <h2>${data.title}</h2>
+      <p>${data.description}</p>
+    `;
+
+    // 애니메이션 적용
+    setTimeout(() => {
+      infoPanel.classList.add("show");
+    }, 50); // 잠깐 지연
+  });
+
+  photos.push(img);
+});
+
+// 카메라 상태
+let rotX = 0;
+let rotY = 0;
+let distance = -1200;
+
+// 마우스 드래그 회전
+let isDragging = false;
+let lastX, lastY;
+
+window.addEventListener("mousedown", e => {
+  isDragging = true;
+  lastX = e.clientX;
+  lastY = e.clientY;
+});
+window.addEventListener("mouseup", () => isDragging = false);
+window.addEventListener("mousemove", e => {
+  if (isDragging) {
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    rotY += dx * 0.3;
+    rotX -= dy * 0.3;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }
+});
+
+// 휠로 줌인/줌아웃
+window.addEventListener("wheel", e => {
+  distance += e.deltaY * 2;
+});
+
+// 애니메이션 루프
+function animate() {
+  camera.style.transform = `translateZ(${distance}px) rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+  photos.forEach(img => {
+    const {x, y, z} = img.dataset;
+    img.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+  });
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>
