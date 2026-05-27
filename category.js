@@ -4,15 +4,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailFilm = document.querySelector(".feature-detail-film");
   const detailFilmImg = document.querySelector(".feature-detail-film img");
   const detailPanel = document.querySelector(".feature-detail-panel");
+  const category = document.body.dataset.category || "feature";
+  const projectElements = {
+    title: document.querySelector("[data-project-title]"),
+    runtime: document.querySelector("[data-project-runtime]"),
+    year: document.querySelector("[data-project-year]"),
+    tools: document.querySelector("[data-project-tools]"),
+    role: document.querySelector("[data-project-role]"),
+    youtube: document.querySelector("[data-project-youtube]"),
+    description: document.querySelector("[data-project-description]"),
+    stills: document.querySelector("[data-project-stills]"),
+    process: document.querySelector("[data-project-process]")
+  };
   const guidePadding = 14;
   const resetDelay = 2000;
+  const filmAnimationDuration = 720;
+  const guideMoveDelay = 420;
+  const guideTransitionDuration = 450;
+  const contentFadeDuration = 300;
   let resetTimer;
+  let guideMoveTimer;
+  let contentTimer;
   let isDetailOpen = false;
   let isAnimating = false;
   let activeFilm = null;
+  const projectCache = new Map();
 
   function setGuideToRect(rect) {
     clearTimeout(resetTimer);
+    clearTimeout(guideMoveTimer);
     const root = document.documentElement;
 
     root.style.setProperty("--guide-top", `${Math.max(rect.top - guidePadding, 18)}px`);
@@ -77,12 +97,171 @@ document.addEventListener("DOMContentLoaded", () => {
     return ghost;
   }
 
-  function openDetailFromFilm(film) {
+  function getFilmId(film) {
+    return film.dataset.film || "film1";
+  }
+
+  function setText(element, value) {
+    if (element) {
+      element.textContent = value || "";
+    }
+  }
+
+  function resolveProjectPath(project, path) {
+    if (!path) return "";
+    if (/^(https?:)?\/\//.test(path) || path.startsWith("/")) return path;
+    return `${project.basePath}/${path}`;
+  }
+
+  function getYouTubeId(value) {
+    if (!value) return "";
+
+    try {
+      const url = new URL(value);
+      if (url.hostname.includes("youtu.be")) {
+        return url.pathname.replace("/", "");
+      }
+      if (url.searchParams.has("v")) {
+        return url.searchParams.get("v");
+      }
+      const embedMatch = url.pathname.match(/\/embed\/([^/?]+)/);
+      if (embedMatch) {
+        return embedMatch[1];
+      }
+    } catch (error) {
+      return value;
+    }
+
+    return value;
+  }
+
+  function getYouTubeEmbedUrl(project) {
+    const id = getYouTubeId(project.youtubeId || project.youtubeUrl);
+    return id ? `https://www.youtube.com/embed/${id}` : "";
+  }
+
+  async function loadProject(filmId) {
+    const cacheKey = `${category}/${filmId}`;
+    if (projectCache.has(cacheKey)) {
+      return projectCache.get(cacheKey);
+    }
+
+    const basePath = `portfolio-db/${category}/${filmId}`;
+    const fallbackProject = {
+      title: "Title",
+      runtime: "",
+      year: "",
+      tools: "",
+      role: "",
+      youtubeUrl: "",
+      description: "",
+      stills: [],
+      process: [],
+      basePath
+    };
+
+    try {
+      const response = await fetch(`${basePath}/brief.json`);
+      if (!response.ok) {
+        throw new Error(`Failed to load ${basePath}/brief.json`);
+      }
+
+      const project = await response.json();
+      const projectWithPath = { ...fallbackProject, ...project, basePath };
+      projectCache.set(cacheKey, projectWithPath);
+      return projectWithPath;
+    } catch (error) {
+      console.warn(error);
+      projectCache.set(cacheKey, fallbackProject);
+      return fallbackProject;
+    }
+  }
+
+  function renderImages(container, images, project) {
+    if (!container) return;
+
+    container.replaceChildren();
+
+    images.forEach(image => {
+      const imagePath = typeof image === "string" ? image : image.src;
+      const imageAlt = typeof image === "string" ? "" : image.alt || "";
+      if (!imagePath) return;
+
+      const img = document.createElement("img");
+      img.src = resolveProjectPath(project, imagePath);
+      img.alt = imageAlt;
+      container.appendChild(img);
+    });
+  }
+
+  function renderProcess(project) {
+    if (!projectElements.process) return;
+
+    projectElements.process.replaceChildren();
+
+    const processItems = Array.isArray(project.process) ? project.process : [];
+
+    processItems.forEach(item => {
+      const section = document.createElement("article");
+      section.className = "project-process-item";
+
+      if (item.title) {
+        const title = document.createElement("h4");
+        title.textContent = item.title;
+        section.appendChild(title);
+      }
+
+      if (item.text || item.body) {
+        const body = document.createElement("p");
+        body.textContent = item.text || item.body;
+        section.appendChild(body);
+      }
+
+      if (Array.isArray(item.images) && item.images.length > 0) {
+        const imageWrap = document.createElement("div");
+        imageWrap.className = "project-process-images";
+        renderImages(imageWrap, item.images, project);
+        section.appendChild(imageWrap);
+      }
+
+      projectElements.process.appendChild(section);
+    });
+  }
+
+  function renderProject(project) {
+    setText(projectElements.title, project.title || "Title");
+    setText(projectElements.runtime, project.runtime);
+    setText(projectElements.year, project.year);
+    setText(projectElements.tools, project.tools);
+    setText(projectElements.role, project.role);
+    setText(projectElements.description, project.description);
+
+    const embedUrl = getYouTubeEmbedUrl(project);
+    if (projectElements.youtube) {
+      if (embedUrl) {
+        projectElements.youtube.src = embedUrl;
+        projectElements.youtube.closest(".feature-video")?.classList.remove("is-empty");
+      } else {
+        projectElements.youtube.removeAttribute("src");
+        projectElements.youtube.closest(".feature-video")?.classList.add("is-empty");
+      }
+    }
+
+    renderImages(projectElements.stills, Array.isArray(project.stills) ? project.stills : [], project);
+    renderProcess(project);
+  }
+
+  async function openDetailFromFilm(film) {
     if (!detail || !detailFilm || !detailFilmImg || isAnimating) return;
 
     isAnimating = true;
     activeFilm = film;
     clearTimeout(resetTimer);
+    clearTimeout(contentTimer);
+    document.body.classList.remove("detail-content-ready");
+
+    const project = await loadProject(getFilmId(film));
+    renderProject(project);
 
     const sourceImg = film.querySelector("img");
     if (sourceImg) {
@@ -98,6 +277,10 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(() => {
       document.body.classList.add("detail-open");
       detail.setAttribute("aria-hidden", "false");
+      guideMoveTimer = window.setTimeout(setGuideToDetailPanel, guideMoveDelay);
+      contentTimer = window.setTimeout(() => {
+        document.body.classList.add("detail-content-ready");
+      }, guideMoveDelay + guideTransitionDuration);
 
       const deltaX = targetRect.left - sourceRect.left;
       const deltaY = targetRect.top - sourceRect.top;
@@ -109,7 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
           { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scale})`, opacity: 1, filter: "blur(0)" }
         ],
         {
-          duration: 720,
+          duration: filmAnimationDuration,
           easing: "cubic-bezier(0.72, 0, 0.2, 1)",
           fill: "forwards"
         }
@@ -128,14 +311,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!detail || !detailFilm || !detailFilmImg || !activeFilm) {
       isDetailOpen = false;
-      document.body.classList.remove("detail-open", "detail-ready");
+      document.body.classList.remove("detail-open", "detail-ready", "detail-content-ready");
       resetGuide();
       return;
     }
 
     isAnimating = true;
     clearTimeout(resetTimer);
+    clearTimeout(guideMoveTimer);
+    clearTimeout(contentTimer);
+    document.body.classList.remove("detail-content-ready");
 
+    window.setTimeout(() => {
+      closeDetailAfterContentFade();
+    }, contentFadeDuration);
+  }
+
+  function closeDetailAfterContentFade() {
     const sourceRect = detailFilm.getBoundingClientRect();
     const targetRect = activeFilm.getBoundingClientRect();
     const ghost = createFilmGhost(sourceRect, detailFilmImg.src);
@@ -147,7 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(() => {
       document.body.classList.remove("detail-open");
       detail.setAttribute("aria-hidden", "true");
-      setGuideToFilm(activeFilm);
+      guideMoveTimer = window.setTimeout(() => setGuideToFilm(activeFilm), guideMoveDelay);
 
       const deltaX = targetRect.left - sourceRect.left;
       const deltaY = targetRect.top - sourceRect.top;
@@ -159,7 +351,7 @@ document.addEventListener("DOMContentLoaded", () => {
           { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scale})`, opacity: 1, filter: "blur(0)" }
         ],
         {
-          duration: 720,
+          duration: filmAnimationDuration,
           easing: "cubic-bezier(0.72, 0, 0.2, 1)",
           fill: "forwards"
         }
