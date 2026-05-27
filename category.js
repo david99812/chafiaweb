@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let resetTimer;
   let isDetailOpen = false;
   let isAnimating = false;
+  let activeFilm = null;
 
   function setGuideToRect(rect) {
     clearTimeout(resetTimer);
@@ -24,15 +25,20 @@ document.addEventListener("DOMContentLoaded", () => {
     setGuideToRect(film.getBoundingClientRect());
   }
 
+  function getCssPixelValue(element, propertyName) {
+    const value = parseFloat(getComputedStyle(element).getPropertyValue(propertyName));
+    return Number.isFinite(value) ? value : 0;
+  }
+
   function setGuideToDetailPanel() {
     if (!detailPanel) return;
 
     const rect = detailPanel.getBoundingClientRect();
     setGuideToRect({
-      top: rect.top - 100,
-      left: rect.left - 40,
-      right: rect.right + 400,
-      bottom: rect.bottom + 75
+      top: rect.top + getCssPixelValue(detailPanel, "--detail-guide-offset-top"),
+      left: rect.left + getCssPixelValue(detailPanel, "--detail-guide-offset-left"),
+      right: rect.right + getCssPixelValue(detailPanel, "--detail-guide-offset-right"),
+      bottom: rect.bottom + getCssPixelValue(detailPanel, "--detail-guide-offset-bottom")
     });
   }
 
@@ -55,10 +61,27 @@ document.addEventListener("DOMContentLoaded", () => {
     resetTimer = setTimeout(resetGuide, resetDelay);
   }
 
+  function createFilmGhost(rect, imageSource) {
+    const ghost = document.createElement("div");
+    const ghostImg = document.createElement("img");
+
+    ghost.className = "detail-film-ghost";
+    ghost.style.left = `${rect.left}px`;
+    ghost.style.top = `${rect.top}px`;
+    ghost.style.width = `${rect.width}px`;
+    ghost.style.height = `${rect.height}px`;
+    ghostImg.src = imageSource;
+    ghostImg.alt = "";
+    ghost.appendChild(ghostImg);
+
+    return ghost;
+  }
+
   function openDetailFromFilm(film) {
     if (!detail || !detailFilm || !detailFilmImg || isAnimating) return;
 
     isAnimating = true;
+    activeFilm = film;
     clearTimeout(resetTimer);
 
     const sourceImg = film.querySelector("img");
@@ -68,13 +91,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const sourceRect = film.getBoundingClientRect();
     const targetRect = detailFilm.getBoundingClientRect();
-    const ghost = film.cloneNode(true);
+    const ghost = createFilmGhost(sourceRect, detailFilmImg.src);
 
-    ghost.className = "detail-film-ghost";
-    ghost.style.left = `${sourceRect.left}px`;
-    ghost.style.top = `${sourceRect.top}px`;
-    ghost.style.width = `${sourceRect.width}px`;
-    ghost.style.height = `${sourceRect.height}px`;
     document.body.appendChild(ghost);
 
     requestAnimationFrame(() => {
@@ -108,12 +126,51 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeDetail() {
     if (!isDetailOpen || isAnimating) return;
 
-    isDetailOpen = false;
-    document.body.classList.remove("detail-open", "detail-ready");
-    if (detail) {
-      detail.setAttribute("aria-hidden", "true");
+    if (!detail || !detailFilm || !detailFilmImg || !activeFilm) {
+      isDetailOpen = false;
+      document.body.classList.remove("detail-open", "detail-ready");
+      resetGuide();
+      return;
     }
-    resetGuide();
+
+    isAnimating = true;
+    clearTimeout(resetTimer);
+
+    const sourceRect = detailFilm.getBoundingClientRect();
+    const targetRect = activeFilm.getBoundingClientRect();
+    const ghost = createFilmGhost(sourceRect, detailFilmImg.src);
+
+    activeFilm.classList.add("is-returning");
+    document.body.appendChild(ghost);
+    document.body.classList.remove("detail-ready");
+
+    requestAnimationFrame(() => {
+      document.body.classList.remove("detail-open");
+      detail.setAttribute("aria-hidden", "true");
+      setGuideToFilm(activeFilm);
+
+      const deltaX = targetRect.left - sourceRect.left;
+      const deltaY = targetRect.top - sourceRect.top;
+      const scale = targetRect.height / sourceRect.height;
+
+      ghost.animate(
+        [
+          { transform: "translate3d(0, 0, 0) scale(1)", opacity: 1, filter: "blur(0)" },
+          { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scale})`, opacity: 1, filter: "blur(0)" }
+        ],
+        {
+          duration: 720,
+          easing: "cubic-bezier(0.72, 0, 0.2, 1)",
+          fill: "forwards"
+        }
+      ).onfinish = () => {
+        ghost.remove();
+        activeFilm.classList.remove("is-returning");
+        isDetailOpen = false;
+        isAnimating = false;
+        setGuideToFilm(activeFilm);
+      };
+    });
   }
 
   films.forEach(film => {
