@@ -20,39 +20,44 @@ body::after {
   height: 42px;
   pointer-events: none;
   z-index: 9999;
+  transition:
+    top 0.45s ease,
+    right 0.45s ease,
+    bottom 0.45s ease,
+    left 0.45s ease;
 }
 
 html::before {
-  top: 34px;
-  left: 34px;
+  top: var(--guide-top, 34px);
+  left: var(--guide-left, 34px);
   border-top: 1px solid #2C2C2C;
   border-left: 1px solid #2C2C2C;
 }
 
 html::after {
-  top: 34px;
-  right: 34px;
+  top: var(--guide-top, 34px);
+  right: var(--guide-right, 34px);
   border-top: 1px solid #2C2C2C;
   border-right: 1px solid #2C2C2C;
 }
 
 body::before {
-  bottom: 34px;
-  left: 34px;
+  bottom: var(--guide-bottom, 34px);
+  left: var(--guide-left, 34px);
   border-bottom: 1px solid #2C2C2C;
   border-left: 1px solid #2C2C2C;
 }
 
 body::after {
-  right: 34px;
-  bottom: 34px;
+  right: var(--guide-right, 34px);
+  bottom: var(--guide-bottom, 34px);
   border-right: 1px solid #2C2C2C;
   border-bottom: 1px solid #2C2C2C;
 }
 
 body {
   font-family: 'Montserrat', sans-serif;
-  background: #FBF7E6;
+  background: #f0ecec;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
@@ -289,4 +294,204 @@ main {
 .carousel-dot.active {
   background: #2C2C2C;
   border-color: #2C2C2C;
+}
+
+/* Category pages */
+body.category-page {
+  min-height: 100vh;
+  padding-top: 0;
+  overflow: hidden;
+}
+
+.category-header {
+  width: min(90vw, 1200px);
+  height: 190px;
+  margin: 0 auto;
+}
+
+.home-link {
+  position: absolute;
+  left: 0;
+  top: 34px;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #2C2C2C;
+  text-decoration: none;
+  letter-spacing: 0.12em;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.category-header:hover .home-link {
+  opacity: 0.65;
+}
+
+.category-title {
+  position: absolute;
+  top: 112px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  color: #2C2C2C;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 30px;
+  font-weight: 100;
+  letter-spacing: 20%;
+  line-height: 1;
+}
+
+.category-main {
+  width: 100%;
+  margin-top: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.film-gallery {
+  position: relative;
+  width: min(90vw, 1200px);
+  height: min(70vh, 610px);
+  min-height: 430px;
+}
+
+.vertical-film {
+  position: absolute;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  --float-x: 0px;
+  --float-y: 0px;
+  --float-rotate: 0deg;
+  --hover-scale: 1.04;
+  transform-origin: center;
+  animation: filmFloat 9s ease-in-out infinite alternate;
+  transition:
+    filter 0.45s ease,
+    opacity 0.45s ease,
+    transform 0.45s ease;
+}
+
+.vertical-film img {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.vertical-film:hover,
+.vertical-film:focus-visible {
+  filter: blur(0);
+  opacity: 1;
+  transform: translate3d(var(--float-x), calc(var(--float-y) - 6px), 0) rotate(var(--float-rotate)) scale(var(--hover-scale));
+  outline: none;
+  z-index: 10;
+  animation-play-state: paused;
+}
+
+@keyframes filmFloat {
+  from {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(var(--float-x), var(--float-y), 0) rotate(var(--float-rotate));
+  }
+}
+
+.vertical-film--hero {
+  width: clamp(200px, 20vw, 285px);
+  left: 13.5%;
+  top: 3%;
+  --float-x: -14px;
+  --float-y: 16px;
+  --float-rotate: -1.5deg;
+  z-index: 4;
+}
+
+.vertical-film--mid {
+  width: clamp(100px, 9.5vw, 145px);
+  left: 38.5%;
+  top: 27%;
+  --float-x: 12px;
+  --float-y: -18px;
+  --float-rotate: 2deg;
+  opacity: 0.48;
+  filter: blur(2px);
+  animation-duration: 11s;
+  animation-delay: -2s;
+  z-index: 2;
+}
+
+.vertical-film--right {
+  width: clamp(125px, 13vw, 185px);
+  right: 18.5%;
+  top: 13%;
+  --float-x: 10px;
+  --float-y: 14px;
+  --float-rotate: 1.2deg;
+  opacity: 0.78;
+  filter: blur(0.7px);
+  animation-duration: 10s;
+  animation-delay: -4s;
+  z-index: 3;
+}
+
+.vertical-film--back {
+  width: clamp(82px, 7.5vw, 112px);
+  left: 57.5%;
+  top: 58%;
+  --float-x: -10px;
+  --float-y: -13px;
+  --float-rotate: -2.4deg;
+  opacity: 0.5;
+  filter: blur(2.4px);
+  animation-duration: 12s;
+  animation-delay: -6s;
+  z-index: 1;
+}
+
+@media (max-width: 720px) {
+  body.category-page {
+    overflow-y: auto;
+  }
+
+  .category-header {
+    height: 110px;
+  }
+
+  .category-title {
+    top: 44px;
+    font-size: 2.4rem;
+  }
+
+  .film-gallery {
+    height: 620px;
+    min-height: 620px;
+  }
+
+  .vertical-film--hero {
+    width: 175px;
+    left: 4%;
+    top: 6%;
+  }
+
+  .vertical-film--mid {
+    width: 94px;
+    left: 55%;
+    top: 20%;
+  }
+
+  .vertical-film--right {
+    width: 126px;
+    right: 4%;
+    top: 48%;
+  }
+
+  .vertical-film--back {
+    width: 82px;
+    left: 38%;
+    top: 66%;
+  }
 }
