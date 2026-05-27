@@ -452,6 +452,96 @@ body.category-page {
   z-index: 1;
 }
 
+.feature-page.detail-open .category-header {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.feature-page.detail-open .film-gallery {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.feature-detail {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 32px;
+  padding: 0 32px 0 0;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  z-index: 20;
+  transition: opacity 0.35s ease;
+}
+
+.feature-page.detail-open .feature-detail {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.feature-detail-film {
+  position: relative;
+  align-self: stretch;
+  justify-self: start;
+  width: auto;
+  aspect-ratio: 504 / 780;
+  height: 100vh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  overflow: visible;
+  transition: opacity 0.2s ease;
+}
+
+.feature-page.detail-ready .feature-detail-film {
+  opacity: 1;
+}
+
+.feature-detail-film img {
+  position: relative;
+  z-index: 3;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.feature-detail-panel {
+  position: relative;
+  align-self: center;
+  width: min(62vw, 860px);
+  height: min(70vh, 620px);
+  border: 0;
+  background: transparent;
+}
+
+.detail-film-ghost {
+  position: fixed;
+  z-index: 13000;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: none;
+  transform-origin: top left;
+  will-change: transform, opacity;
+}
+
+.detail-film-ghost img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 @media (max-width: 720px) {
   body.category-page {
     overflow-y: auto;
@@ -494,4 +584,22 @@ body.category-page {
     left: 38%;
     top: 66%;
   }
+
+  .feature-detail {
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+    padding-right: 16px;
+  }
+
+  .feature-detail-film {
+    width: auto;
+    height: 100vh;
+    min-width: 0;
+  }
+
+  .feature-detail-panel {
+    width: 48vw;
+    height: 68vh;
+  }
+
 }
