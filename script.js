@@ -14,16 +14,43 @@ document.addEventListener("DOMContentLoaded", () => {
   let isSliding = false;
   const filmCenterIndex = 2;
 
+  function getFullSlotWidth() {
+    const fullSlot = Array.from(slots).find(slot => slot.classList.contains("place"));
+    return fullSlot?.offsetWidth || slots[0]?.offsetWidth || 0;
+  }
+
+  function getSlotMetrics(slot) {
+    const fullWidth = getFullSlotWidth();
+    let left = slot.offsetLeft;
+    let width = slot.offsetWidth;
+
+    if (slot.classList.contains("placehalfleft")) {
+      width = fullWidth;
+      left = slot.offsetLeft - (fullWidth - slot.offsetWidth);
+    } else if (slot.classList.contains("placehalfright")) {
+      width = fullWidth;
+    }
+
+    return {
+      left,
+      top: slot.offsetTop,
+      width,
+      height: slot.offsetHeight
+    };
+  }
+
   function placeButtonInSlot(btn, slot, animate = true) {
     if (!animate) {
       btn.classList.add("no-transition");
     }
 
-    btn.style.left = slot.offsetLeft + "px";
+    const metrics = getSlotMetrics(slot);
+
+    btn.style.left = metrics.left + "px";
     btn.style.right = "auto";
-    btn.style.top = slot.offsetTop + "px";
-    btn.style.width = slot.offsetWidth + "px";
-    btn.style.height = slot.offsetHeight + "px";
+    btn.style.top = metrics.top + "px";
+    btn.style.width = metrics.width + "px";
+    btn.style.height = metrics.height + "px";
     btn.dataset.slot = slot.dataset.slot;
 
     if (!animate) {
@@ -53,6 +80,19 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!Number.isNaN(idx) && carouselDots[idx]) {
         carouselDots[idx].classList.add("active");
       }
+    }
+  }
+
+  function clearVisibleTitles() {
+    buttons.forEach(btn => btn.classList.remove("title-visible"));
+  }
+
+  function showCenterTitle() {
+    clearVisibleTitles();
+
+    const centerBtn = Array.from(buttons).find(btn => btn.dataset.slot === "2");
+    if (centerBtn) {
+      centerBtn.classList.add("title-visible");
     }
   }
 
@@ -121,16 +161,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const clone = exitBtn.cloneNode(true);
     const frameWidth = exitBtn.parentElement.offsetWidth;
+    const enterMetrics = getSlotMetrics(enterSlot);
 
     clone.classList.add("slide-clone", "visible", "no-transition");
     clone.classList.remove("hovered");
     clone.style.left = direction === "left"
       ? frameWidth + "px"
-      : -enterSlot.offsetWidth + "px";
+      : -enterMetrics.width + "px";
     clone.style.right = "auto";
-    clone.style.top = enterSlot.offsetTop + "px";
-    clone.style.width = enterSlot.offsetWidth + "px";
-    clone.style.height = enterSlot.offsetHeight + "px";
+    clone.style.top = enterMetrics.top + "px";
+    clone.style.width = enterMetrics.width + "px";
+    clone.style.height = enterMetrics.height + "px";
 
     exitBtn.parentElement.appendChild(clone);
     void clone.offsetWidth;
@@ -199,6 +240,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function rotateOnce() {
+    clearVisibleTitles();
+
     const currentIndex = getCenterButtonIndex();
     const targetIndex = currentIndex >= buttons.length - 1 ? 0 : currentIndex + 1;
     const delta = targetIndex - currentIndex;
@@ -239,6 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isSliding) return;
       if (btn.dataset.slot === "0" || btn.dataset.slot === "4") return;
 
+      clearVisibleTitles();
       paused = true;
       btn.classList.add("hovered");
 
@@ -284,6 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
       userSelected = true;
       resetInactivityTimer();
       await slideSteps(direction, steps);
+      showCenterTitle();
     });
   });
 

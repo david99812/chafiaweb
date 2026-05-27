@@ -133,12 +133,27 @@ main {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  --edge-fade: 20px;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--edge-fade),
+    #000 calc(100% - var(--edge-fade)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--edge-fade),
+    #000 calc(100% - var(--edge-fade)),
+    transparent 100%
+  );
 }
 
 .film {
   position: absolute;
   top: 0;
-  left: 50%;
+  left: 52.35%;
   width: auto;
   height: 100%;
   max-width: none;
@@ -239,13 +254,10 @@ main {
   letter-spacing: 0.2em;
 }
 
-.video-btn.hovered .btn-title {
+.video-btn.hovered .btn-title,
+.video-btn.title-visible .btn-title {
   opacity: 1;
   transition: opacity 1s ease;
-}
-
-.video-btn:not(.hovered) .btn-title {
-  transition: opacity 0s;
 }
 
 /* Carousel 컨트롤 */
