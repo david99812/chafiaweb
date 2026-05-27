@@ -39,6 +39,25 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  function ensureVideoLoaded(video) {
+    if (!video || video.src) return;
+
+    const src = video.dataset.src;
+    if (!src) return;
+
+    video.src = src;
+    video.load();
+  }
+
+  function resetVideo(video) {
+    if (!video) return;
+
+    video.pause();
+    if (video.currentSrc) {
+      video.currentTime = 0;
+    }
+  }
+
   function placeButtonInSlot(btn, slot, animate = true) {
     if (!animate) {
       btn.classList.add("no-transition");
@@ -65,11 +84,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (btn.dataset.slot === "2") {
         btn.classList.add("active");
+        ensureVideoLoaded(video);
         video.play().catch(() => {});
       } else if (!btn.classList.contains("hovered")) {
         btn.classList.remove("active");
-        video.pause();
-        video.currentTime = 0;
+        resetVideo(video);
       }
     });
 
@@ -180,6 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const video = clone.querySelector("video");
     if (video) {
+      ensureVideoLoaded(video);
       video.play().catch(() => {});
     }
 
@@ -290,12 +310,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (activeBtn && activeBtn !== btn) {
         const v = activeBtn.querySelector("video");
         activeBtn.classList.remove("active");
-        v.pause();
-        v.currentTime = 0;
+        resetVideo(v);
       }
 
       btn.classList.add("active");
-      btn.querySelector("video").play().catch(() => {});
+      const video = btn.querySelector("video");
+      ensureVideoLoaded(video);
+      video.play().catch(() => {});
     });
 
     btn.addEventListener("mouseleave", () => {
