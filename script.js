@@ -1,5 +1,6 @@
 // script.js
 document.addEventListener("DOMContentLoaded", () => {
+  const film = document.querySelector(".film");
   const slots = document.querySelectorAll("[data-slot]");
   const buttons = document.querySelectorAll(".video-btn");
   const carouselDots = document.querySelectorAll(".carousel-dot");
@@ -11,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let userSelected = false; // dot 클릭으로 멈춤 여부
   let inactivityTimer; // 10초 inactivity 타이머
   let isSliding = false;
+  const filmCenterIndex = 2;
 
   function placeButtonInSlot(btn, slot, animate = true) {
     if (!animate) {
@@ -74,6 +76,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function getSlideDistance() {
+    if (slots.length > 2) {
+      const distance = Math.abs(slots[2].offsetLeft - slots[1].offsetLeft);
+      if (distance > 0) return distance;
+    }
+
+    return buttons[0]?.parentElement.offsetWidth * 0.2 || 0;
+  }
+
+  function getCenterButtonIndex() {
+    const centerBtn = Array.from(buttons).find(btn => btn.dataset.slot === "2");
+    if (!centerBtn) return filmCenterIndex;
+
+    const index = parseInt(centerBtn.dataset.index, 10);
+    return Number.isNaN(index) ? filmCenterIndex : index;
+  }
+
+  function setFilmForIndex(index, animate = true) {
+    if (!film) return;
+
+    const distance = getSlideDistance();
+    const filmPosition = (filmCenterIndex - index) * distance;
+
+    if (!animate) {
+      film.classList.add("no-transition");
+    }
+
+    film.style.setProperty("--film-slide", `${filmPosition}px`);
+
+    if (!animate) {
+      void film.offsetWidth;
+      film.classList.remove("no-transition");
+    }
+  }
+
   function createEnteringClone(direction) {
     const exitSlotIndex = direction === "left" ? 0 : slots.length - 1;
     const enterSlotIndex = direction === "left" ? slots.length - 1 : 0;
@@ -111,6 +148,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function slideOnce(direction = "left") {
     return new Promise(resolve => {
       const enteringClone = createEnteringClone(direction);
+      const currentIndex = getCenterButtonIndex();
+      const nextIndex = direction === "left"
+        ? (currentIndex + 1) % buttons.length
+        : (currentIndex - 1 + buttons.length) % buttons.length;
+
+      setFilmForIndex(nextIndex, true);
 
       buttons.forEach(btn => {
         const currentSlotIndex = parseInt(btn.dataset.slot, 10);
@@ -156,7 +199,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function rotateOnce() {
-    slideSteps("left", 1);
+    const currentIndex = getCenterButtonIndex();
+    const targetIndex = currentIndex >= buttons.length - 1 ? 0 : currentIndex + 1;
+    const delta = targetIndex - currentIndex;
+    const direction = delta > 0 ? "left" : "right";
+
+    slideSteps(direction, Math.abs(delta));
   }
 
   function startInterval() {
@@ -182,6 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 초기 실행
   assignButtons();
+  setFilmForIndex(getCenterButtonIndex(), false);
   startInterval();
 
   // Hover 동작
@@ -225,11 +274,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const centerBtn = Array.from(buttons).find(btn => btn.dataset.slot === "2");
       const currentIndex = centerBtn ? parseInt(centerBtn.dataset.index, 10) : targetIndex;
-      const step = (targetIndex - currentIndex + slots.length) % slots.length;
-      if (step === 0) return;
+      const delta = targetIndex - currentIndex;
+      if (delta === 0) return;
 
-      const direction = step <= slots.length / 2 ? "left" : "right";
-      const steps = direction === "left" ? step : slots.length - step;
+      const direction = delta > 0 ? "left" : "right";
+      const steps = Math.abs(delta);
 
       // 사용자 지정 모드로 전환
       userSelected = true;
@@ -240,5 +289,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("resize", () => {
     assignButtons(false);
+    setFilmForIndex(getCenterButtonIndex(), false);
   });
 });

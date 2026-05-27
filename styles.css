@@ -136,13 +136,22 @@ main {
 }
 
 .film {
-  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: auto;
   height: 100%;
+  max-width: none;
   object-fit: contain;
   display: block;
-  position: relative;
+  transform: translateX(calc(-50% + var(--film-slide, 0px)));
+  transition: transform 0.65s ease;
   z-index: 3;
   pointer-events: none;
+}
+
+.film.no-transition {
+  transition: none;
 }
 
 /* 버튼 자리 */
