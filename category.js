@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const detail = document.querySelector(".feature-detail");
   const detailFilm = document.querySelector(".feature-detail-film");
   const detailFilmImg = document.querySelector(".feature-detail-film img");
+  const detailFilmStills = document.createElement("div");
   const detailPanel = document.querySelector(".feature-detail-panel");
   const category = document.body.dataset.category || "feature";
   const projectElements = {
@@ -51,6 +52,9 @@ document.addEventListener("DOMContentLoaded", () => {
   hoverCategory.className = "film-hover-category";
   hoverInfo.append(hoverTitle, hoverCategory);
   document.body.appendChild(hoverInfo);
+
+  detailFilmStills.className = "feature-detail-stills";
+  detailFilm?.insertBefore(detailFilmStills, detailFilmImg);
 
   function setGuideToRect(rect, options = {}) {
     clearTimeout(resetTimer);
@@ -464,6 +468,56 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function renderStillSlots(container, slotClassName, project) {
+    if (!container) return;
+
+    container.replaceChildren();
+
+    const stills = Array.isArray(project.stills) ? project.stills.slice(0, 4) : [];
+
+    stills.forEach(still => {
+      const stillPath = typeof still === "string" ? still : still.src;
+      const stillAlt = typeof still === "string" ? "" : still.alt || "";
+      if (!stillPath) return;
+
+      const slot = document.createElement("div");
+      const image = document.createElement("img");
+
+      slot.className = slotClassName;
+      image.src = resolveProjectPath(project, stillPath);
+      image.alt = stillAlt;
+      slot.appendChild(image);
+      container.appendChild(slot);
+    });
+  }
+
+  function renderDetailFilmStills(project) {
+    renderStillSlots(detailFilmStills, "feature-detail-still", project);
+  }
+
+  function getFilmStillsContainer(film) {
+    let container = film.querySelector(".vertical-film-stills");
+
+    if (!container) {
+      container = document.createElement("div");
+      container.className = "vertical-film-stills";
+      film.insertBefore(container, film.querySelector("img"));
+    }
+
+    return container;
+  }
+
+  async function renderGalleryFilmStills(film) {
+    const project = await loadProject(getFilmId(film));
+    renderStillSlots(getFilmStillsContainer(film), "vertical-film-still", project);
+  }
+
+  function renderAllGalleryFilmStills() {
+    films.forEach(film => {
+      renderGalleryFilmStills(film);
+    });
+  }
+
   function renderProcess(project) {
     if (!projectElements.process) return;
 
@@ -518,6 +572,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     renderImages(projectElements.stills, Array.isArray(project.stills) ? project.stills : [], project);
+    renderDetailFilmStills(project);
     renderProcess(project);
   }
 
@@ -651,6 +706,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   applyCameraZ();
+  renderAllGalleryFilmStills();
 
   if (filmGallery) {
     filmGallery.addEventListener("pointermove", handleGalleryPointerMove);
