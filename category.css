@@ -181,9 +181,9 @@ body.category-page {
   filter: blur(calc(var(--camera-blur) + 1.4px)) drop-shadow(var(--camera-shadow));
 }
 
+.vertical-film.is-held-hidden,
 .vertical-film.is-returning {
   opacity: 0 !important;
-  visibility: hidden;
   pointer-events: none;
 }
 
@@ -382,6 +382,16 @@ body.category-page {
   overscroll-behavior: contain;
   pointer-events: auto;
   scrollbar-width: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-page.detail-ready:not(.detail-closing) .feature-detail-stills {
+  opacity: 1;
+}
+
+.feature-page.detail-closing .feature-detail-stills {
+  pointer-events: none;
 }
 
 .feature-detail-stills::-webkit-scrollbar {
@@ -432,6 +442,14 @@ body.category-page {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.feature-page.detail-content-ready .feature-detail-panel {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .feature-detail-panel::-webkit-scrollbar {
