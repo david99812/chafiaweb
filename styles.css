@@ -16,15 +16,17 @@ body::before,
 body::after {
   content: "";
   position: fixed;
-  width: 42px;
-  height: 42px;
+  width: var(--guide-size, 42px);
+  height: var(--guide-size, 42px);
   pointer-events: none;
   z-index: 9999;
   transition:
     top 0.45s ease,
     right 0.45s ease,
     bottom 0.45s ease,
-    left 0.45s ease;
+    left 0.45s ease,
+    width 0.45s ease,
+    height 0.45s ease;
 }
 
 html::before {

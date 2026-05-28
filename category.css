@@ -1,4 +1,28 @@
 /* Category pages */
+@property --camera-z {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --camera-blur {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --camera-opacity {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+
+@property --camera-scale {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+
 body.category-page {
   min-height: 100vh;
   padding-top: 0;
@@ -54,6 +78,10 @@ body.category-page {
   width: min(90vw, 1200px);
   height: min(70vh, 610px);
   min-height: 430px;
+  perspective: 900px;
+  perspective-origin: 50% 45%;
+  transform-style: preserve-3d;
+  overflow: visible;
 }
 
 .vertical-film {
@@ -67,12 +95,20 @@ body.category-page {
   --float-y: 0px;
   --float-rotate: 0deg;
   --hover-scale: 1.04;
+  --camera-blur: 0px;
+  --camera-opacity: 1;
+  --camera-scale: 1;
+  --camera-z: 0px;
+  --camera-shadow: 0 16px 22px rgba(0, 0, 0, 0.14);
   transform-origin: center;
+  transform-style: preserve-3d;
   animation: filmFloat 9s ease-in-out infinite alternate;
   transition:
     filter 0.45s ease,
     opacity 0.45s ease,
     transform 0.45s ease;
+  opacity: var(--camera-opacity);
+  filter: blur(var(--camera-blur)) drop-shadow(var(--camera-shadow));
 }
 
 .vertical-film img {
@@ -84,10 +120,11 @@ body.category-page {
 }
 
 .vertical-film:hover,
-.vertical-film:focus-visible {
+.vertical-film:focus-visible,
+.vertical-film.is-pointer-target {
   filter: blur(0) drop-shadow(0 16px 22px rgba(0, 0, 0, 0.14));
   opacity: 1;
-  transform: translate3d(var(--float-x), calc(var(--float-y) - 6px), 0) rotate(var(--float-rotate)) scale(var(--hover-scale));
+  transform: translate3d(var(--float-x), calc(var(--float-y) - 6px), var(--camera-z)) rotate(var(--float-rotate)) scale(calc(var(--hover-scale) * var(--camera-scale)));
   outline: none;
   z-index: 10;
   animation-play-state: paused;
@@ -101,10 +138,10 @@ body.category-page {
 
 @keyframes filmFloat {
   from {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: translate3d(0, 0, var(--camera-z)) rotate(0deg) scale(var(--camera-scale));
   }
   to {
-    transform: translate3d(var(--float-x), var(--float-y), 0) rotate(var(--float-rotate));
+    transform: translate3d(var(--float-x), var(--float-y), var(--camera-z)) rotate(var(--float-rotate)) scale(var(--camera-scale));
   }
 }
 
@@ -115,7 +152,7 @@ body.category-page {
   --float-x: -14px;
   --float-y: 16px;
   --float-rotate: -1.5deg;
-  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.14));
+  --camera-shadow: 0 16px 22px rgba(0, 0, 0, 0.14);
   z-index: 4;
 }
 
@@ -126,8 +163,9 @@ body.category-page {
   --float-x: 12px;
   --float-y: -18px;
   --float-rotate: 2deg;
-  opacity: 0.48;
-  filter: blur(2px) drop-shadow(0 12px 18px rgba(0, 0, 0, 0.12));
+  --camera-opacity: 0.48;
+  --camera-blur: 2px;
+  --camera-shadow: 0 12px 18px rgba(0, 0, 0, 0.12);
   animation-duration: 11s;
   animation-delay: -2s;
   z-index: 2;
@@ -140,8 +178,9 @@ body.category-page {
   --float-x: 10px;
   --float-y: 14px;
   --float-rotate: 1.2deg;
-  opacity: 0.78;
-  filter: blur(0.7px) drop-shadow(0 14px 20px rgba(0, 0, 0, 0.13));
+  --camera-opacity: 0.78;
+  --camera-blur: 0.7px;
+  --camera-shadow: 0 14px 20px rgba(0, 0, 0, 0.13);
   animation-duration: 10s;
   animation-delay: -4s;
   z-index: 3;
@@ -154,8 +193,9 @@ body.category-page {
   --float-x: -10px;
   --float-y: -13px;
   --float-rotate: -2.4deg;
-  opacity: 0.5;
-  filter: blur(2.4px) drop-shadow(0 10px 16px rgba(0, 0, 0, 0.11));
+  --camera-opacity: 0.5;
+  --camera-blur: 2.4px;
+  --camera-shadow: 0 10px 16px rgba(0, 0, 0, 0.11);
   animation-duration: 12s;
   animation-delay: -6s;
   z-index: 1;

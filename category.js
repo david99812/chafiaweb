@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const films = document.querySelectorAll(".vertical-film");
+  const filmGallery = document.querySelector(".film-gallery");
   const detail = document.querySelector(".feature-detail");
   const detailFilm = document.querySelector(".feature-detail-film");
   const detailFilmImg = document.querySelector(".feature-detail-film img");
@@ -17,6 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     process: document.querySelector("[data-project-process]")
   };
   const guidePadding = 14;
+  const defaultGuideSize = 42;
   const resetDelay = 2000;
   const filmAnimationDuration = 720;
   const guideMoveDelay = 420;
@@ -28,17 +30,30 @@ document.addEventListener("DOMContentLoaded", () => {
   let isDetailOpen = false;
   let isAnimating = false;
   let activeFilm = null;
+  let cameraZ = 0;
+  let targetCameraZ = 0;
+  let cameraAnimationFrame;
+  let pointerTargetFilm = null;
   const projectCache = new Map();
+  const filmWorldZ = {
+    "vertical-film--hero": 180,
+    "vertical-film--right": -40,
+    "vertical-film--mid": -250,
+    "vertical-film--back": -520
+  };
 
-  function setGuideToRect(rect) {
+  function setGuideToRect(rect, options = {}) {
     clearTimeout(resetTimer);
     clearTimeout(guideMoveTimer);
     const root = document.documentElement;
+    const padding = options.padding ?? guidePadding;
+    const size = options.size ?? defaultGuideSize;
 
-    root.style.setProperty("--guide-top", `${Math.max(rect.top - guidePadding, 18)}px`);
-    root.style.setProperty("--guide-left", `${Math.max(rect.left - guidePadding, 18)}px`);
-    root.style.setProperty("--guide-right", `${Math.max(window.innerWidth - rect.right - guidePadding, 18)}px`);
-    root.style.setProperty("--guide-bottom", `${Math.max(window.innerHeight - rect.bottom - guidePadding, 18)}px`);
+    root.style.setProperty("--guide-size", `${size}px`);
+    root.style.setProperty("--guide-top", `${Math.max(rect.top - padding, 18)}px`);
+    root.style.setProperty("--guide-left", `${Math.max(rect.left - padding, 18)}px`);
+    root.style.setProperty("--guide-right", `${Math.max(window.innerWidth - rect.right - padding, 18)}px`);
+    root.style.setProperty("--guide-bottom", `${Math.max(window.innerHeight - rect.bottom - padding, 18)}px`);
   }
 
   function isDetailGuideLocked() {
@@ -47,7 +62,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setGuideToFilm(film, force = false) {
     if (!force && isDetailGuideLocked()) return;
-    setGuideToRect(film.getBoundingClientRect());
+    const rect = film.getBoundingClientRect();
+    const size = Math.round(clamp(rect.width * 0.26, 18, defaultGuideSize));
+    const padding = Math.round(clamp(size / 3, 6, guidePadding));
+
+    setGuideToRect(rect, { size, padding });
   }
 
   function getCssPixelValue(element, propertyName) {
@@ -81,11 +100,150 @@ document.addEventListener("DOMContentLoaded", () => {
     root.style.removeProperty("--guide-left");
     root.style.removeProperty("--guide-right");
     root.style.removeProperty("--guide-bottom");
+    root.style.removeProperty("--guide-size");
   }
 
   function scheduleResetGuide() {
     clearTimeout(resetTimer);
     resetTimer = setTimeout(resetGuide, resetDelay);
+  }
+
+  function getFilmWorldZ(film) {
+    const className = Object.keys(filmWorldZ).find(name => film.classList.contains(name));
+    return filmWorldZ[className] ?? 0;
+  }
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(value, max));
+  }
+
+  function getHoveredFilm() {
+    return pointerTargetFilm || Array.from(films).find(film => film.matches(":hover, :focus-visible"));
+  }
+
+  function updateHoveredGuide() {
+    const hoveredFilm = getHoveredFilm();
+    if (hoveredFilm) {
+      setGuideToFilm(hoveredFilm);
+    }
+  }
+
+  function getFilmAtPoint(clientX, clientY) {
+    const candidates = Array.from(films).filter(film => {
+      const rect = film.getBoundingClientRect();
+      return (
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom
+      );
+    });
+
+    if (candidates.length === 0) return null;
+
+    return candidates.sort((a, b) => {
+      const aRect = a.getBoundingClientRect();
+      const bRect = b.getBoundingClientRect();
+      const aDistance = Math.hypot(clientX - (aRect.left + aRect.width / 2), clientY - (aRect.top + aRect.height / 2));
+      const bDistance = Math.hypot(clientX - (bRect.left + bRect.width / 2), clientY - (bRect.top + bRect.height / 2));
+      return aDistance - bDistance;
+    })[0];
+  }
+
+  function setPointerTargetFilm(film) {
+    if (pointerTargetFilm === film) {
+      setGuideToFilm(film);
+      return;
+    }
+
+    if (pointerTargetFilm) {
+      pointerTargetFilm.classList.remove("is-pointer-target");
+    }
+
+    pointerTargetFilm = film;
+
+    if (pointerTargetFilm) {
+      pointerTargetFilm.classList.add("is-pointer-target");
+      setGuideToFilm(pointerTargetFilm);
+    }
+  }
+
+  function clearPointerTargetFilm() {
+    if (pointerTargetFilm) {
+      pointerTargetFilm.classList.remove("is-pointer-target");
+      pointerTargetFilm = null;
+    }
+  }
+
+  function handleGalleryPointerMove(event) {
+    if (isDetailGuideLocked()) return;
+
+    const film = getFilmAtPoint(event.clientX, event.clientY);
+    if (film) {
+      clearTimeout(resetTimer);
+      setPointerTargetFilm(film);
+    } else {
+      clearPointerTargetFilm();
+      scheduleResetGuide();
+    }
+  }
+
+  function handleGalleryClick(event) {
+    if (isDetailGuideLocked()) return;
+
+    const film = pointerTargetFilm || getFilmAtPoint(event.clientX, event.clientY);
+    if (!film) return;
+
+    event.preventDefault();
+    openDetailFromFilm(film);
+  }
+
+  function applyCameraZ() {
+    films.forEach(film => {
+      const z = getFilmWorldZ(film) + cameraZ;
+      const visibleZ = clamp(z, -900, 760);
+      const farDistance = Math.max(-z, 0);
+      const passedDistance = Math.max(z - 620, 0);
+      const blur = Math.min(farDistance / 220 + passedDistance / 90, 8);
+      const opacity = clamp(1 - farDistance / 1100 - passedDistance / 180, 0, 1);
+      const scale = clamp(1 - farDistance / 2800, 0.88, 1);
+
+      film.style.setProperty("--camera-blur", `${blur.toFixed(2)}px`);
+      film.style.setProperty("--camera-opacity", opacity.toFixed(2));
+      film.style.setProperty("--camera-scale", scale.toFixed(3));
+      film.style.setProperty("--camera-z", `${visibleZ.toFixed(1)}px`);
+    });
+
+    updateHoveredGuide();
+  }
+
+  function animateCameraZ() {
+    const distance = targetCameraZ - cameraZ;
+
+    if (Math.abs(distance) < 0.6) {
+      cameraZ = targetCameraZ;
+      applyCameraZ();
+      cameraAnimationFrame = null;
+      return;
+    }
+
+    cameraZ += distance * 0.14;
+    applyCameraZ();
+    cameraAnimationFrame = requestAnimationFrame(animateCameraZ);
+  }
+
+  function startCameraAnimation() {
+    if (!cameraAnimationFrame) {
+      cameraAnimationFrame = requestAnimationFrame(animateCameraZ);
+    }
+  }
+
+  function handleCameraWheel(event) {
+    if (isDetailGuideLocked()) return;
+
+    event.preventDefault();
+    targetCameraZ = clamp(targetCameraZ + event.deltaY * 0.7, 0, 1080);
+    startCameraAnimation();
   }
 
   function createFilmGhost(rect, imageSource) {
@@ -266,6 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clearTimeout(resetTimer);
     clearTimeout(guideMoveTimer);
     clearTimeout(contentTimer);
+    clearPointerTargetFilm();
     document.body.classList.remove("detail-content-ready");
 
     const project = await loadProject(getFilmId(film));
@@ -374,12 +533,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   films.forEach(film => {
-    film.addEventListener("mouseenter", () => setGuideToFilm(film));
-    film.addEventListener("focus", () => setGuideToFilm(film));
+    film.addEventListener("mouseenter", () => setPointerTargetFilm(film));
+    film.addEventListener("focus", () => setPointerTargetFilm(film));
     film.addEventListener("mouseleave", scheduleResetGuide);
-    film.addEventListener("blur", scheduleResetGuide);
+    film.addEventListener("blur", () => {
+      clearPointerTargetFilm();
+      scheduleResetGuide();
+    });
     film.addEventListener("click", () => openDetailFromFilm(film));
   });
+
+  applyCameraZ();
+
+  if (filmGallery) {
+    filmGallery.addEventListener("pointermove", handleGalleryPointerMove);
+    filmGallery.addEventListener("pointerleave", () => {
+      clearPointerTargetFilm();
+      scheduleResetGuide();
+    });
+    filmGallery.addEventListener("click", handleGalleryClick);
+    filmGallery.addEventListener("wheel", handleCameraWheel, { passive: false });
+  }
 
   if (detailFilm) {
     detailFilm.addEventListener("click", closeDetail);
