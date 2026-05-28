@@ -79,9 +79,10 @@ body.category-page {
   height: min(70vh, 610px);
   min-height: 430px;
   perspective: 900px;
-  perspective-origin: 50% 45%;
+  perspective-origin: var(--gallery-origin-x, 50%) var(--gallery-origin-y, 45%);
   transform-style: preserve-3d;
   overflow: visible;
+  transition: perspective-origin 0.22s ease;
 }
 
 .vertical-film {
@@ -130,10 +131,63 @@ body.category-page {
   animation-play-state: paused;
 }
 
+.film-gallery.has-pointer-target .vertical-film:not(.is-pointer-target) {
+  opacity: calc(var(--camera-opacity) * 0.46);
+  filter: blur(calc(var(--camera-blur) + 1.4px)) drop-shadow(var(--camera-shadow));
+}
+
 .vertical-film.is-returning {
   opacity: 0 !important;
   visibility: hidden;
   pointer-events: none;
+}
+
+.film-hover-info {
+  position: fixed;
+  z-index: 18;
+  pointer-events: none;
+  color: #2C2C2C;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 100;
+  text-shadow:
+    0 0 8px rgba(240, 236, 236, 0.95),
+    0 0 18px rgba(240, 236, 236, 0.8);
+  opacity: 0;
+  transform: translateY(8px) scale(var(--hover-info-scale, 1));
+  transform-origin: left center;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    left 0.28s ease,
+    top 0.28s ease;
+}
+
+.film-hover-info.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(var(--hover-info-scale, 1));
+}
+
+.film-hover-title {
+  margin: 0;
+  font-size: clamp(1.1rem, 1.6vw, 1.8rem);
+  font-weight: 100;
+  line-height: 1.1;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+}
+
+.film-hover-category {
+  margin-top: 12px;
+  font-size: clamp(0.72rem, 0.9vw, 0.95rem);
+  font-weight: 100;
+  line-height: 1;
+  letter-spacing: 0.28em;
+  white-space: nowrap;
+  opacity: 0.95;
+  text-shadow:
+    0 0 6px rgba(240, 236, 236, 1),
+    0 0 18px rgba(240, 236, 236, 0.95),
+    0 0 1px rgba(44, 44, 44, 0.45);
 }
 
 @keyframes filmFloat {
