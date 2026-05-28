@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const hoverInfo = document.createElement("div");
   const hoverTitle = document.createElement("p");
   const hoverCategory = document.createElement("p");
+  const stillLightbox = document.createElement("div");
+  const stillLightboxImage = document.createElement("img");
   const guidePadding = 14;
   const defaultGuideSize = 42;
   const resetDelay = 2000;
@@ -39,6 +41,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let cameraAnimationFrame;
   let pointerTargetFilm = null;
   let hoverInfoRequest = 0;
+  let stillScrollTarget = 0;
+  let stillScrollAnimationFrame;
   const projectCache = new Map();
   const filmWorldZ = {
     "vertical-film--hero": 180,
@@ -55,6 +59,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   detailFilmStills.className = "feature-detail-stills";
   detailFilm?.insertBefore(detailFilmStills, detailFilmImg);
+
+  stillLightbox.className = "still-lightbox";
+  stillLightbox.setAttribute("aria-hidden", "true");
+  stillLightboxImage.alt = "";
+  stillLightbox.appendChild(stillLightboxImage);
+  document.body.appendChild(stillLightbox);
 
   function setGuideToRect(rect, options = {}) {
     clearTimeout(resetTimer);
@@ -354,18 +364,20 @@ document.addEventListener("DOMContentLoaded", () => {
     startCameraAnimation();
   }
 
-  function createFilmGhost(rect, imageSource) {
+  function createFilmGhost(rect, sourceElement) {
     const ghost = document.createElement("div");
-    const ghostImg = document.createElement("img");
+    const ghostContent = sourceElement.cloneNode(true);
 
     ghost.className = "detail-film-ghost";
     ghost.style.left = `${rect.left}px`;
     ghost.style.top = `${rect.top}px`;
     ghost.style.width = `${rect.width}px`;
     ghost.style.height = `${rect.height}px`;
-    ghostImg.src = imageSource;
-    ghostImg.alt = "";
-    ghost.appendChild(ghostImg);
+    ghostContent.classList.remove("is-pointer-target", "is-returning");
+    ghostContent.removeAttribute("id");
+    ghostContent.removeAttribute("aria-label");
+    ghostContent.setAttribute("aria-hidden", "true");
+    ghost.appendChild(ghostContent);
 
     return ghost;
   }
@@ -468,12 +480,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function renderStillSlots(container, slotClassName, project) {
+  function renderStillSlots(container, slotClassName, project, limit = null) {
     if (!container) return;
 
     container.replaceChildren();
 
-    const stills = Array.isArray(project.stills) ? project.stills.slice(0, 4) : [];
+    const projectStills = Array.isArray(project.stills) ? project.stills : [];
+    const stills = Number.isFinite(limit) ? projectStills.slice(0, limit) : projectStills;
 
     stills.forEach(still => {
       const stillPath = typeof still === "string" ? still : still.src;
@@ -486,13 +499,26 @@ document.addEventListener("DOMContentLoaded", () => {
       slot.className = slotClassName;
       image.src = resolveProjectPath(project, stillPath);
       image.alt = stillAlt;
+      if (slotClassName === "feature-detail-still") {
+        image.addEventListener("load", () => requestAnimationFrame(updateDetailStillsFocus), { once: true });
+        slot.addEventListener("mousemove", handleDetailStillPointerMove);
+        slot.addEventListener("mouseenter", handleDetailStillPointerMove);
+        slot.addEventListener("mouseleave", handleDetailStillPointerLeave);
+        slot.addEventListener("click", event => {
+          event.stopPropagation();
+          openStillLightbox(image.src, image.alt);
+        });
+      }
       slot.appendChild(image);
       container.appendChild(slot);
     });
   }
 
   function renderDetailFilmStills(project) {
+    detailFilmStills.scrollTop = 0;
+    stillScrollTarget = 0;
     renderStillSlots(detailFilmStills, "feature-detail-still", project);
+    requestAnimationFrame(updateDetailStillsFocus);
   }
 
   function getFilmStillsContainer(film) {
@@ -509,13 +535,103 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function renderGalleryFilmStills(film) {
     const project = await loadProject(getFilmId(film));
-    renderStillSlots(getFilmStillsContainer(film), "vertical-film-still", project);
+    renderStillSlots(getFilmStillsContainer(film), "vertical-film-still", project, 4);
   }
 
   function renderAllGalleryFilmStills() {
     films.forEach(film => {
       renderGalleryFilmStills(film);
     });
+  }
+
+  function updateDetailStillsFocus() {
+    const stills = detailFilmStills.querySelectorAll(".feature-detail-still");
+    if (stills.length === 0) return;
+
+    const containerRect = detailFilmStills.getBoundingClientRect();
+    const centerY = containerRect.top + containerRect.height / 2;
+
+    stills.forEach(still => {
+      const rect = still.getBoundingClientRect();
+      const stillCenterY = rect.top + rect.height / 2;
+      const distance = Math.abs(centerY - stillCenterY);
+      const closeness = clamp(1 - distance / (containerRect.height * 0.48), 0, 1);
+      const scale = 0.9 + closeness * 0.14;
+
+      still.style.setProperty("--still-scale", scale.toFixed(3));
+      still.style.opacity = (0.74 + closeness * 0.26).toFixed(2);
+    });
+  }
+
+  function getDetailStillsMaxScroll() {
+    return Math.max(detailFilmStills.scrollHeight - detailFilmStills.clientHeight, 0);
+  }
+
+  function animateDetailStillsScroll() {
+    const distance = stillScrollTarget - detailFilmStills.scrollTop;
+
+    if (Math.abs(distance) < 0.5) {
+      detailFilmStills.scrollTop = stillScrollTarget;
+      updateDetailStillsFocus();
+      stillScrollAnimationFrame = null;
+      return;
+    }
+
+    detailFilmStills.scrollTop += distance * 0.1;
+    updateDetailStillsFocus();
+    stillScrollAnimationFrame = requestAnimationFrame(animateDetailStillsScroll);
+  }
+
+  function startDetailStillsScrollAnimation() {
+    if (!stillScrollAnimationFrame) {
+      stillScrollAnimationFrame = requestAnimationFrame(animateDetailStillsScroll);
+    }
+  }
+
+  function handleDetailStillsWheel(event) {
+    if (!isDetailOpen && !document.body.classList.contains("detail-open")) return;
+
+    event.preventDefault();
+    stillScrollTarget = clamp(
+      stillScrollTarget + event.deltaY,
+      0,
+      getDetailStillsMaxScroll()
+    );
+    startDetailStillsScrollAnimation();
+  }
+
+  function handleDetailStillPointerMove(event) {
+    const still = event.currentTarget;
+    const rect = still.getBoundingClientRect();
+    const originX = clamp((event.clientX - rect.left) / rect.width * 100, 0, 100);
+    const originY = clamp((event.clientY - rect.top) / rect.height * 100, 0, 100);
+
+    still.classList.add("is-hovered");
+    still.style.setProperty("--still-origin-x", `${originX.toFixed(1)}%`);
+    still.style.setProperty("--still-origin-y", `${originY.toFixed(1)}%`);
+  }
+
+  function handleDetailStillPointerLeave(event) {
+    const still = event.currentTarget;
+
+    still.classList.remove("is-hovered");
+    still.style.removeProperty("--still-origin-x");
+    still.style.removeProperty("--still-origin-y");
+  }
+
+  function openStillLightbox(src, alt = "") {
+    if (!src) return;
+
+    stillLightboxImage.src = src;
+    stillLightboxImage.alt = alt;
+    stillLightbox.classList.add("is-open");
+    stillLightbox.setAttribute("aria-hidden", "false");
+  }
+
+  function closeStillLightbox() {
+    stillLightbox.classList.remove("is-open");
+    stillLightbox.setAttribute("aria-hidden", "true");
+    stillLightboxImage.removeAttribute("src");
   }
 
   function renderProcess(project) {
@@ -599,7 +715,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const sourceRect = film.getBoundingClientRect();
     const targetRect = detailFilm.getBoundingClientRect();
-    const ghost = createFilmGhost(sourceRect, detailFilmImg.src);
+    const ghost = createFilmGhost(sourceRect, film);
 
     document.body.appendChild(ghost);
 
@@ -637,6 +753,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function closeDetail() {
     if (!isDetailOpen || isAnimating) return;
+    if (stillLightbox.classList.contains("is-open")) {
+      closeStillLightbox();
+      return;
+    }
 
     if (!detail || !detailFilm || !detailFilmImg || !activeFilm) {
       isDetailOpen = false;
@@ -649,6 +769,10 @@ document.addEventListener("DOMContentLoaded", () => {
     clearTimeout(resetTimer);
     clearTimeout(guideMoveTimer);
     clearTimeout(contentTimer);
+    if (stillScrollAnimationFrame) {
+      cancelAnimationFrame(stillScrollAnimationFrame);
+      stillScrollAnimationFrame = null;
+    }
     document.body.classList.remove("detail-content-ready");
 
     window.setTimeout(() => {
@@ -659,7 +783,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeDetailAfterContentFade() {
     const sourceRect = detailFilm.getBoundingClientRect();
     const targetRect = activeFilm.getBoundingClientRect();
-    const ghost = createFilmGhost(sourceRect, detailFilmImg.src);
+    const ghost = createFilmGhost(sourceRect, detailFilm);
 
     activeFilm.classList.add("is-returning");
     document.body.appendChild(ghost);
@@ -723,9 +847,22 @@ document.addEventListener("DOMContentLoaded", () => {
     detailFilm.addEventListener("click", closeDetail);
   }
 
+  detailFilmStills.addEventListener("click", event => {
+    event.stopPropagation();
+  });
+
+  detailFilmStills.addEventListener("scroll", updateDetailStillsFocus, { passive: true });
+  detailFilmStills.addEventListener("wheel", handleDetailStillsWheel, { passive: false });
+
+  stillLightbox.addEventListener("click", closeStillLightbox);
+
   document.addEventListener("keydown", event => {
     if (event.key === "Escape") {
-      closeDetail();
+      if (stillLightbox.classList.contains("is-open")) {
+        closeStillLightbox();
+      } else {
+        closeDetail();
+      }
     }
   });
 
@@ -733,6 +870,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clearTimeout(resetTimer);
     if (isDetailOpen) {
       setGuideToDetailPanel();
+      updateDetailStillsFocus();
     } else {
       resetGuide();
     }
