@@ -226,16 +226,17 @@ body.category-page {
 }
 
 .feature-detail-panel {
-  --detail-guide-offset-top: -100px;
-  --detail-guide-offset-left: -40px;
-  --detail-guide-offset-right: 400px;
-  --detail-guide-offset-bottom: 75px;
+  transform: translate(-60px, -5px);
+  --detail-guide-offset-top: 4px;
+  --detail-guide-offset-left: 4px;
+  --detail-guide-offset-right: -4px;
+  --detail-guide-offset-bottom: -4px;
   position: relative;
   align-self: center;
-  width: min(66vw, 1140px);
-  height: min(78vh, 720px);
+  width: min(80vw, 1380px);
+  height: min(93vh, 1270px);
   border: 0;
-  background: transparent;
+  background: rgba(44, 44, 44, 0.04);
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -271,10 +272,11 @@ body.category-page {
   margin: 0;
   color: #2C2C2C;
   font-family: 'Montserrat', sans-serif;
-  font-size: clamp(2.8rem, 4.2vw, 4.4rem);
+  font-size: clamp(2.2rem, 3.2vw, 3.4rem);
   font-weight: 100;
-  letter-spacing: 0.36em;
+  letter-spacing: 0.24em;
   line-height: 1;
+  transform: translateY(30px);
 }
 
 .project-meta {
@@ -288,18 +290,20 @@ body.category-page {
 }
 
 .project-meta div {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 18px;
+  display: block;
 }
 
-.project-meta dt,
+.project-meta dt {
+  display: none;
+}
+
 .project-meta dd {
   margin: 0;
 }
 
 .feature-video {
   width: 100%;
+  transform: translate(20px, 10px);
   aspect-ratio: 16 / 9;
   background: #000;
 }
@@ -465,37 +469,76 @@ body.category-page {
   }
 
   .feature-detail {
-    grid-template-columns: auto 1fr;
-    gap: 16px;
-    padding-right: 16px;
+    grid-template-columns: 32vw 1fr;
+    gap: 12px;
+    padding: 0 12px;
+    align-items: center;
   }
 
   .feature-detail-film {
-    width: auto;
-    height: 100vh;
+    width: 32vw;
+    height: auto;
     min-width: 0;
+    align-self: center;
   }
 
   .feature-detail-panel {
-    width: 48vw;
-    height: 68vh;
+    transform: none;
+    width: calc(68vw - 24px);
+    height: 82vh;
+    --detail-guide-offset-top: 4px;
+    --detail-guide-offset-left: 4px;
+    --detail-guide-offset-right: -4px;
+    --detail-guide-offset-bottom: -4px;
   }
 
   .feature-detail-content {
-    padding: 0 18px 120px;
+    padding: 8px 14px 120px;
   }
 
   .project-overview {
     grid-template-columns: 1fr;
-    gap: 32px;
+    gap: 24px;
   }
 
   .project-title {
-    font-size: 2.4rem;
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
+    letter-spacing: 0.18em;
+    transform: translateY(0);
   }
 
   .project-meta {
-    margin-top: 48px;
-    font-size: 0.86rem;
+    margin-top: 34px;
+    gap: 14px;
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+  }
+
+  .feature-video {
+    width: 100%;
+    transform: none;
+  }
+
+  .project-description {
+    margin-top: 40px;
+    min-height: 110px;
+  }
+
+  .project-description h3,
+  .project-process h3 {
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+  }
+
+  .project-description p,
+  .project-process-item p {
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    line-height: 1.7;
+  }
+
+  .project-stills,
+  .project-process-images {
+    grid-template-columns: 1fr;
   }
 }

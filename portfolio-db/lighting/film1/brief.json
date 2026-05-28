@@ -1,11 +1,21 @@
-{
-  "title": "Lighting Film 1",
-  "runtime": "",
-  "year": "",
-  "tools": "",
-  "role": "",
-  "youtubeUrl": "",
-  "description": "",
-  "stills": [],
-  "process": []
+﻿{
+    "title":  "Lighting Film 1",
+    "runtime":  "",
+    "year":  "",
+    "tools":  "",
+    "role":  "",
+    "youtubeUrl":  "",
+    "description":  "",
+    "stills":  [
+
+               ],
+    "process":  [
+                    {
+                        "title":  "",
+                        "text":  "",
+                        "images":  [
+
+                                   ]
+                    }
+                ]
 }

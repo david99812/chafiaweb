@@ -41,7 +41,12 @@ document.addEventListener("DOMContentLoaded", () => {
     root.style.setProperty("--guide-bottom", `${Math.max(window.innerHeight - rect.bottom - guidePadding, 18)}px`);
   }
 
-  function setGuideToFilm(film) {
+  function isDetailGuideLocked() {
+    return isDetailOpen || isAnimating || document.body.classList.contains("detail-open");
+  }
+
+  function setGuideToFilm(film, force = false) {
+    if (!force && isDetailGuideLocked()) return;
     setGuideToRect(film.getBoundingClientRect());
   }
 
@@ -63,10 +68,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function resetGuide() {
-    if (isDetailOpen) {
+    if (isDetailOpen || document.body.classList.contains("detail-open")) {
       setGuideToDetailPanel();
       return;
     }
+
+    if (isAnimating) return;
 
     const root = document.documentElement;
 
@@ -257,6 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isAnimating = true;
     activeFilm = film;
     clearTimeout(resetTimer);
+    clearTimeout(guideMoveTimer);
     clearTimeout(contentTimer);
     document.body.classList.remove("detail-content-ready");
 
@@ -339,7 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
     requestAnimationFrame(() => {
       document.body.classList.remove("detail-open");
       detail.setAttribute("aria-hidden", "true");
-      guideMoveTimer = window.setTimeout(() => setGuideToFilm(activeFilm), guideMoveDelay);
+      guideMoveTimer = window.setTimeout(() => setGuideToFilm(activeFilm, true), guideMoveDelay);
 
       const deltaX = targetRect.left - sourceRect.left;
       const deltaY = targetRect.top - sourceRect.top;
@@ -360,7 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
         activeFilm.classList.remove("is-returning");
         isDetailOpen = false;
         isAnimating = false;
-        setGuideToFilm(activeFilm);
+        setGuideToFilm(activeFilm, true);
       };
     });
   }

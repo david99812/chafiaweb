@@ -1,11 +1,21 @@
-{
-  "title": "Modeling Film 3",
-  "runtime": "",
-  "year": "",
-  "tools": "",
-  "role": "",
-  "youtubeUrl": "",
-  "description": "",
-  "stills": [],
-  "process": []
+﻿{
+    "title":  "Modeling Film 3",
+    "runtime":  "",
+    "year":  "",
+    "tools":  "",
+    "role":  "",
+    "youtubeUrl":  "",
+    "description":  "",
+    "stills":  [
+
+               ],
+    "process":  [
+                    {
+                        "title":  "",
+                        "text":  "",
+                        "images":  [
+
+                                   ]
+                    }
+                ]
 }

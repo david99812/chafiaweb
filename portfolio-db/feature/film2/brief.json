@@ -1,11 +1,21 @@
-{
-  "title": "Feature Film 2",
-  "runtime": "",
-  "year": "",
-  "tools": "",
-  "role": "",
-  "youtubeUrl": "",
-  "description": "",
-  "stills": [],
-  "process": []
+﻿{
+    "title":  "Feature Film 2",
+    "runtime":  "",
+    "year":  "",
+    "tools":  "",
+    "role":  "",
+    "youtubeUrl":  "",
+    "description":  "",
+    "stills":  [
+
+               ],
+    "process":  [
+                    {
+                        "title":  "",
+                        "text":  "",
+                        "images":  [
+
+                                   ]
+                    }
+                ]
 }
