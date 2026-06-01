@@ -442,6 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
       youtubeUrl: "",
       description: "",
       stills: [],
+      processStills: [],
       process: [],
       basePath
     };
@@ -480,12 +481,28 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function getImageList(project, primaryKey, fallbackKey = null) {
+    if (Array.isArray(project[primaryKey])) {
+      return project[primaryKey];
+    }
+
+    return fallbackKey && Array.isArray(project[fallbackKey]) ? project[fallbackKey] : [];
+  }
+
+  function getFilmStills(project) {
+    return getImageList(project, "filmStills", "stills");
+  }
+
+  function getProcessStills(project) {
+    return getImageList(project, "processStills");
+  }
+
   function renderStillSlots(container, slotClassName, project, limit = null) {
     if (!container) return;
 
     container.replaceChildren();
 
-    const projectStills = Array.isArray(project.stills) ? project.stills : [];
+    const projectStills = getFilmStills(project);
     const stills = Number.isFinite(limit) ? projectStills.slice(0, limit) : projectStills;
 
     stills.forEach(still => {
@@ -687,7 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    renderImages(projectElements.stills, Array.isArray(project.stills) ? project.stills : [], project);
+    renderImages(projectElements.stills, getProcessStills(project), project);
     renderDetailFilmStills(project);
     renderProcess(project);
   }
