@@ -621,7 +621,7 @@ body.category-page {
 }
 
 .project-process-list {
-  padding-bottom: 760px;
+  padding-bottom: clamp(220px, 34vh, 480px);
 }
 
 .project-process-item {
@@ -880,6 +880,10 @@ body.category-page {
 
   .project-process-item {
     grid-template-columns: 1fr;
+  }
+
+  .project-process-list {
+    padding-bottom: clamp(96px, 18vh, 180px);
   }
 
   .project-process-images + p {
