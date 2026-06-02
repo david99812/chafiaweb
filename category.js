@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let hoverInfoRequest = 0;
   let stillScrollTarget = 0;
   let stillScrollAnimationFrame;
+  let detailStillsCenterRequest = 0;
   const projectCache = new Map();
   const filmWorldZ = {
     "vertical-film--hero": 180,
@@ -532,10 +533,50 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderDetailFilmStills(project) {
+    const centerRequest = ++detailStillsCenterRequest;
+
     detailFilmStills.scrollTop = 0;
     stillScrollTarget = 0;
     renderStillSlots(detailFilmStills, "feature-detail-still", project);
-    requestAnimationFrame(updateDetailStillsFocus);
+    scheduleDetailStillsCenter(centerRequest);
+
+    const pendingImages = Array.from(detailFilmStills.querySelectorAll("img"))
+      .filter(image => !image.complete);
+
+    if (pendingImages.length > 0) {
+      Promise.all(pendingImages.map(image => new Promise(resolve => {
+        image.addEventListener("load", resolve, { once: true });
+        image.addEventListener("error", resolve, { once: true });
+      }))).then(() => scheduleDetailStillsCenter(centerRequest));
+    }
+  }
+
+  function scheduleDetailStillsCenter(requestId) {
+    requestAnimationFrame(() => {
+      if (requestId !== detailStillsCenterRequest) return;
+      centerDetailStillsOnMiddle();
+    });
+  }
+
+  function centerDetailStillsOnMiddle() {
+    const stills = detailFilmStills.querySelectorAll(".feature-detail-still");
+    if (stills.length === 0) {
+      updateDetailStillsFocus();
+      return;
+    }
+
+    const middleStill = stills[Math.floor((stills.length - 1) / 2)];
+    const containerRect = detailFilmStills.getBoundingClientRect();
+    const stillRect = middleStill.getBoundingClientRect();
+    const targetScrollTop = detailFilmStills.scrollTop
+      + stillRect.top
+      + stillRect.height / 2
+      - containerRect.top
+      - containerRect.height / 2;
+
+    stillScrollTarget = clamp(targetScrollTop, 0, getDetailStillsMaxScroll());
+    detailFilmStills.scrollTop = stillScrollTarget;
+    updateDetailStillsFocus();
   }
 
   function getFilmStillsContainer(film) {
