@@ -501,7 +501,7 @@ body.category-page {
   color: #2C2C2C;
   font-family: 'Montserrat', sans-serif;
   font-size: clamp(2.2rem, 3.2vw, 3.4rem);
-  font-weight: 100;
+  font-weight: 300;
   letter-spacing: 0.24em;
   line-height: 1;
   transform: translateY(30px);
@@ -513,7 +513,7 @@ body.category-page {
   gap: 22px;
   color: #2C2C2C;
   font-size: 1.08rem;
-  font-weight: 100;
+  font-weight: 200;
   letter-spacing: 0.3em;
 }
 
@@ -576,7 +576,7 @@ body.category-page {
   margin: 28px 0 0;
   color: #2C2C2C;
   font-size: 1rem;
-  font-weight: 100;
+  font-weight: 200;
   letter-spacing: 0.08em;
   line-height: 1.9;
   white-space: pre-line;
@@ -587,7 +587,7 @@ body.category-page {
   margin: 0;
   color: #2C2C2C;
   font-size: 1.08rem;
-  font-weight: 100;
+  font-weight: 200;
   letter-spacing: 0.3em;
   line-height: 1;
 }
@@ -625,29 +625,35 @@ body.category-page {
 }
 
 .project-process-item {
-  max-width: 760px;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 520px) minmax(160px, 1fr);
+  align-items: start;
+  gap: 0 24px;
 }
 
 .project-process-item h4 {
+  grid-column: 1 / -1;
   margin: 0 0 14px;
   color: #2C2C2C;
   font-size: 1rem;
-  font-weight: 100;
+  font-weight: 200;
   letter-spacing: 0.22em;
 }
 
 .project-process-item p {
+  align-self: center;
   margin: 0;
   color: #2C2C2C;
   font-size: 0.96rem;
-  font-weight: 100;
+  font-weight: 200;
   letter-spacing: 0.08em;
   line-height: 1.8;
   white-space: pre-line;
 }
 
 .project-process-images {
-  margin-top: 20px;
+  margin-top: 0;
   display: grid;
   grid-template-columns: 1fr;
   gap: 18px;
@@ -658,17 +664,26 @@ body.category-page {
   width: min(100%, 520px);
 }
 
+.project-process-image-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
 .project-process-figure figcaption {
   margin-top: 8px;
   color: #2C2C2C;
   font-size: 0.78rem;
-  font-weight: 100;
+  font-weight: 200;
   letter-spacing: 0.08em;
   line-height: 1.5;
 }
 
 .project-process-images + p {
-  margin-top: 20px;
+  margin-top: 0;
 }
 
 .detail-film-ghost {
@@ -857,13 +872,26 @@ body.category-page {
 
   .project-description p,
   .project-process-item p {
+    align-self: auto;
     font-size: 0.82rem;
     letter-spacing: 0.04em;
     line-height: 1.7;
   }
 
+  .project-process-item {
+    grid-template-columns: 1fr;
+  }
+
+  .project-process-images + p {
+    margin-top: 20px;
+  }
+
   .project-stills,
   .project-process-images {
     grid-template-columns: 1fr;
+  }
+
+  .project-process-figure {
+    width: 100%;
   }
 }

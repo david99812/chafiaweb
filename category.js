@@ -545,12 +545,20 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!imagePath) return;
 
       const figure = document.createElement("figure");
+      const button = document.createElement("button");
       const img = document.createElement("img");
 
       figure.className = "project-process-figure";
+      button.className = "project-process-image-button";
+      button.type = "button";
+      button.setAttribute("aria-label", imageCaption ? `${imageCaption} 크게 보기` : "제작과정 이미지 크게 보기");
       img.src = resolveProjectPath(project, imagePath);
       img.alt = imageAlt;
-      figure.appendChild(img);
+      button.appendChild(img);
+      button.addEventListener("click", () => {
+        openStillLightbox(img.src, img.alt);
+      });
+      figure.appendChild(button);
 
       if (imageCaption) {
         const caption = document.createElement("figcaption");
