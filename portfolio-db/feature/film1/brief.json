@@ -1,24 +1,53 @@
 ﻿{
-    "title":  " Vin et Cigarettes ",
-    "category":  "Short Film",
-    "runtime":  "05\u002723",
-    "year":  "2026",
-    "tools":  "ComfyUi.Unreal Engine5",
-    "role":  "Original artwork by Fia Cha",
-    "youtubeUrl":  "https://youtu.be/mdNvtS1zrhg",
-    "description":  "On the forms of love and its series of processes.",
-    "stills":  [
-                   "images/V_E_C_1 (1).png",
-                   "images/V_E_C_1 (2).png",
-                   "images/V_E_C_1 (3).png"
-               ],
-    "process":  [
-                    {
-                        "title":  "",
-                        "text":  "ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ",
-                        "images":  [
-
-                                   ]
-                    }
-                ]
+    "title": " Ideal Imperfection ",
+    "category": "Short Film",
+    "runtime": "09'53",
+    "year": "2025",
+    "tools": "ue5,comfyui,c4d.",
+    "role": "Original artwork by Fia Cha",
+    "youtubeUrl": "https://youtu.be/YEzJmII62Jc",
+    "description": "Logline\nA humanoid, who admires human error, learns and repeats mistakes, ultimately leading to its own tragic end.\n\nConcept\nIf there were a robot that could feel human consciousness and emotions identically, and could perceive itself as an object, wouldn’t it also recognize the differences and boundaries between itself and humans? Wouldn't it eventually come to yearn for humanity? And what would be the end of that yearning? There are things a robot can never commit—such as making mistakes. Could a robot begin to long for errors? To a robot, a mistake is merely a technical error. Even if a robot were to learn mistakes, they would only be \"perfect\" mistakes. Once perfected, mistakes cease to be mistakes. Similarly, once there is intent behind the action, it is no longer a mistake. The robot may long for human errors, but it can never truly reach the essence of what they mean to humans. This leads to a profound tragedy for the robot, reflecting an existential contradiction and the absence of its own self.",
+    "frameStills": [
+        "images/0.png",
+        "images/9.png",
+        "images/4.png"
+    ],
+    "stills": [
+        "images/포스터.png",
+        "images/0-1.png",
+        "images/0.png",
+        "images/1.png",
+        "images/3.png",
+        "images/4.png",
+        "images/5.png",
+        "images/6.png",
+        "images/7.png",
+        "images/8.png",
+        "images/9.png",
+        "images/10.png",
+        "images/11.png",
+        "images/12.png"
+    ],
+    "process": [
+        {
+            "title": "Level Disign",
+            "images": [
+                {
+                    "src": "images/제작과정images/1.png",
+                    "caption": "ROOM 1 ( River's inside )"
+                }
+            ],
+            "text": "- Props used default 3d assets. Wires were created using the Tether plugin.\n- The blood splattered on the floor was added using UE5's decal feature."
+        },
+        {
+            "title": "",
+            "images": [
+                {
+                    "src": "images/제작과정images/2.png",
+                    "caption": "ROOM 2 (Debugging Room)"
+                }
+            ],
+            "text": "- The glass material and opacity were custom made using direct Blueprints.\n- In the debugging room, the mirror material alone was causing the MetaHumans to disappear, so a SceneCapture cube was used to achieve the same effect."
+        }
+    ]
 }

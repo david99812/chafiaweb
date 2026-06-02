@@ -30,6 +30,57 @@ document.addEventListener("DOMContentLoaded", () => {
   const guideMoveDelay = 420;
   const guideTransitionDuration = 450;
   const contentFadeDuration = 300;
+  const toolIconBasePath = "assets/icons/";
+  const toolIconMap = {
+    c4d: {
+      label: "Cinema 4D",
+      icon: "C4D.png"
+    },
+    ae: {
+      label: "After Effects",
+      icon: "AE.png"
+    },
+    comfyui: {
+      label: "ComfyUI",
+      icon: "comfiui.png"
+    },
+    "comfy ui": {
+      label: "ComfyUI",
+      icon: "comfiui.png"
+    },
+    dr: {
+      label: "DaVinci Resolve",
+      icon: "DR.png"
+    },
+    md: {
+      label: "Marvelous Designer",
+      icon: "MD.png"
+    },
+    pr: {
+      label: "Premiere Pro",
+      icon: "PR.png"
+    },
+    ue5: {
+      label: "Unreal Engine 5",
+      icon: "UE5.png"
+    },
+    unrealengine5: {
+      label: "Unreal Engine 5",
+      icon: "UE5.png"
+    },
+    "unreal engine5": {
+      label: "Unreal Engine 5",
+      icon: "UE5.png"
+    },
+    "unreal engine 5": {
+      label: "Unreal Engine 5",
+      icon: "UE5.png"
+    },
+    "unreal engine": {
+      label: "Unreal Engine",
+      icon: "UE5.png"
+    }
+  };
   let resetTimer;
   let guideMoveTimer;
   let contentTimer;
@@ -482,6 +533,35 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  function renderProcessImages(container, images, project) {
+    if (!container) return;
+
+    container.replaceChildren();
+
+    images.forEach(image => {
+      const imagePath = typeof image === "string" ? image : image.src;
+      const imageAlt = typeof image === "string" ? "" : image.alt || image.caption || "";
+      const imageCaption = typeof image === "string" ? "" : image.caption || image.description || "";
+      if (!imagePath) return;
+
+      const figure = document.createElement("figure");
+      const img = document.createElement("img");
+
+      figure.className = "project-process-figure";
+      img.src = resolveProjectPath(project, imagePath);
+      img.alt = imageAlt;
+      figure.appendChild(img);
+
+      if (imageCaption) {
+        const caption = document.createElement("figcaption");
+        caption.textContent = imageCaption;
+        figure.appendChild(caption);
+      }
+
+      container.appendChild(figure);
+    });
+  }
+
   function getImageList(project, primaryKey, fallbackKey = null) {
     if (Array.isArray(project[primaryKey])) {
       return project[primaryKey];
@@ -494,16 +574,75 @@ document.addEventListener("DOMContentLoaded", () => {
     return getImageList(project, "filmStills", "stills");
   }
 
+  function getFrameStills(project) {
+    const frameStills = getImageList(project, "frameStills");
+    return frameStills.length > 0 ? frameStills : getFilmStills(project);
+  }
+
   function getProcessStills(project) {
     return getImageList(project, "processStills");
   }
 
-  function renderStillSlots(container, slotClassName, project, limit = null) {
+  function normalizeToolName(value) {
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+  }
+
+  function getProjectTools(value) {
+    if (Array.isArray(value)) {
+      return value
+        .map(tool => typeof tool === "string" ? tool : tool?.name || tool?.label || "")
+        .map(tool => tool.trim())
+        .filter(Boolean);
+    }
+
+    return String(value || "")
+      .split(/[.,/|]+/)
+      .map(tool => tool.trim())
+      .filter(Boolean);
+  }
+
+  function renderProjectTools(element, value) {
+    if (!element) return;
+
+    const tools = getProjectTools(value);
+    element.replaceChildren();
+    element.classList.toggle("project-tools", tools.length > 0);
+
+    tools.forEach(tool => {
+      const iconData = toolIconMap[normalizeToolName(tool)];
+
+      if (!iconData) {
+        const fallback = document.createElement("span");
+        fallback.className = "project-tool-text";
+        fallback.textContent = tool;
+        element.appendChild(fallback);
+        return;
+      }
+
+      const icon = document.createElement("img");
+      icon.className = "project-tool-icon";
+      icon.src = `${toolIconBasePath}${iconData.icon}`;
+      icon.alt = iconData.label;
+      icon.title = iconData.label;
+      icon.addEventListener("error", () => {
+        const fallback = document.createElement("span");
+        fallback.className = "project-tool-text";
+        fallback.textContent = iconData.label;
+        icon.replaceWith(fallback);
+      }, { once: true });
+      element.appendChild(icon);
+    });
+  }
+
+  function renderStillSlots(container, slotClassName, project, limit = null, sourceStills = null) {
     if (!container) return;
 
     container.replaceChildren();
 
-    const projectStills = getFilmStills(project);
+    const projectStills = Array.isArray(sourceStills) ? sourceStills : getFilmStills(project);
     const stills = Number.isFinite(limit) ? projectStills.slice(0, limit) : projectStills;
 
     stills.forEach(still => {
@@ -593,7 +732,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function renderGalleryFilmStills(film) {
     const project = await loadProject(getFilmId(film));
-    renderStillSlots(getFilmStillsContainer(film), "vertical-film-still", project, 4);
+    renderStillSlots(getFilmStillsContainer(film), "vertical-film-still", project, 4, getFrameStills(project));
   }
 
   function renderAllGalleryFilmStills() {
@@ -709,17 +848,17 @@ document.addEventListener("DOMContentLoaded", () => {
         section.appendChild(title);
       }
 
+      if (Array.isArray(item.images) && item.images.length > 0) {
+        const imageWrap = document.createElement("div");
+        imageWrap.className = "project-process-images";
+        renderProcessImages(imageWrap, item.images, project);
+        section.appendChild(imageWrap);
+      }
+
       if (item.text || item.body) {
         const body = document.createElement("p");
         body.textContent = item.text || item.body;
         section.appendChild(body);
-      }
-
-      if (Array.isArray(item.images) && item.images.length > 0) {
-        const imageWrap = document.createElement("div");
-        imageWrap.className = "project-process-images";
-        renderImages(imageWrap, item.images, project);
-        section.appendChild(imageWrap);
       }
 
       projectElements.process.appendChild(section);
@@ -730,7 +869,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setText(projectElements.title, project.title || "Title");
     setText(projectElements.runtime, project.runtime);
     setText(projectElements.year, project.year);
-    setText(projectElements.tools, project.tools);
+    renderProjectTools(projectElements.tools, project.tools);
     setText(projectElements.role, project.role);
     setText(projectElements.description, project.description);
 

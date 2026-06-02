@@ -353,6 +353,25 @@ body.category-page {
   opacity: 1;
 }
 
+.feature-detail-film::after {
+  content: "Still Cut";
+  position: absolute;
+  left: calc(6% - 15px);
+  top: 50%;
+  z-index: 6;
+  color: #2C2C2C;
+  font-size: 0.82rem;
+  font-weight: 100;
+  letter-spacing: 0.28em;
+  line-height: 1;
+  opacity: 0.6;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  transform-origin: center;
+  pointer-events: none;
+  user-select: none;
+}
+
 .feature-detail-film > img {
   position: relative;
   z-index: 3;
@@ -510,6 +529,25 @@ body.category-page {
   margin: 0;
 }
 
+.project-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  letter-spacing: 0;
+}
+
+.project-tool-icon {
+  display: block;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.project-tool-text {
+  letter-spacing: 0.12em;
+}
+
 .feature-video {
   width: 100%;
   transform: translate(20px, 10px);
@@ -611,8 +649,26 @@ body.category-page {
 .project-process-images {
   margin-top: 20px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 18px;
+}
+
+.project-process-figure {
+  margin: 0;
+  width: min(100%, 520px);
+}
+
+.project-process-figure figcaption {
+  margin-top: 8px;
+  color: #2C2C2C;
+  font-size: 0.78rem;
+  font-weight: 100;
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+}
+
+.project-process-images + p {
+  margin-top: 20px;
 }
 
 .detail-film-ghost {
