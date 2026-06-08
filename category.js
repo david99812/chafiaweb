@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailFilm = document.querySelector(".feature-detail-film");
   const detailFilmImg = document.querySelector(".feature-detail-film img");
   const detailFilmStills = document.createElement("div");
+  const detailBackButton = document.querySelector(".detail-back-button");
   const detailPanel = document.querySelector(".feature-detail-panel");
   const category = document.body.dataset.category || "feature";
   const projectElements = {
@@ -83,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   let resetTimer;
   let guideMoveTimer;
+  let stillGuideResetTimer;
   let contentTimer;
   let isDetailOpen = false;
   let isAnimating = false;
@@ -160,6 +162,15 @@ document.addEventListener("DOMContentLoaded", () => {
       right: rect.right + getCssPixelValue(detailPanel, "--detail-guide-offset-right"),
       bottom: rect.bottom + getCssPixelValue(detailPanel, "--detail-guide-offset-bottom")
     });
+  }
+
+  function setGuideToDetailStill(still) {
+    if (!still) return;
+
+    const rect = still.getBoundingClientRect();
+    const size = Math.round(clamp(rect.width * 0.12, 18, defaultGuideSize));
+    const padding = Math.round(clamp(size / 3, 6, guidePadding));
+    setGuideToRect(rect, { size, padding });
   }
 
   function resetGuide() {
@@ -811,9 +822,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const originX = clamp((event.clientX - rect.left) / rect.width * 100, 0, 100);
     const originY = clamp((event.clientY - rect.top) / rect.height * 100, 0, 100);
 
+    clearTimeout(stillGuideResetTimer);
     still.classList.add("is-hovered");
     still.style.setProperty("--still-origin-x", `${originX.toFixed(1)}%`);
     still.style.setProperty("--still-origin-y", `${originY.toFixed(1)}%`);
+    setGuideToDetailStill(still);
   }
 
   function handleDetailStillPointerLeave(event) {
@@ -822,6 +835,10 @@ document.addEventListener("DOMContentLoaded", () => {
     still.classList.remove("is-hovered");
     still.style.removeProperty("--still-origin-x");
     still.style.removeProperty("--still-origin-y");
+    clearTimeout(stillGuideResetTimer);
+    stillGuideResetTimer = window.setTimeout(() => {
+      setGuideToDetailPanel();
+    }, 2000);
   }
 
   function openStillLightbox(src, alt = "") {
@@ -851,6 +868,7 @@ document.addEventListener("DOMContentLoaded", () => {
       section.className = "project-process-item";
 
       if (item.title) {
+        section.classList.add("has-title");
         const title = document.createElement("h4");
         title.textContent = item.title;
         section.appendChild(title);
@@ -907,6 +925,7 @@ document.addEventListener("DOMContentLoaded", () => {
     activeFilm = film;
     clearTimeout(resetTimer);
     clearTimeout(guideMoveTimer);
+    clearTimeout(stillGuideResetTimer);
     clearTimeout(contentTimer);
     clearPointerTargetFilm();
     hideHoverInfo();
@@ -971,6 +990,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isDetailOpen = false;
       activeFilm?.classList.remove("is-held-hidden", "is-returning");
       document.body.classList.remove("detail-open", "detail-ready", "detail-content-ready", "detail-closing");
+      clearTimeout(stillGuideResetTimer);
       resetGuide();
       return;
     }
@@ -978,6 +998,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isAnimating = true;
     clearTimeout(resetTimer);
     clearTimeout(guideMoveTimer);
+    clearTimeout(stillGuideResetTimer);
     clearTimeout(contentTimer);
     if (stillScrollAnimationFrame) {
       cancelAnimationFrame(stillScrollAnimationFrame);
@@ -1034,6 +1055,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (detailFilm) {
     detailFilm.addEventListener("click", closeDetail);
+  }
+
+  if (detailBackButton) {
+    detailBackButton.addEventListener("click", event => {
+      event.stopPropagation();
+      closeDetail();
+    });
   }
 
   detailFilmStills.addEventListener("click", event => {

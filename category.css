@@ -52,6 +52,50 @@ body.category-page {
   opacity: 0.65;
 }
 
+.category-back-button,
+.detail-back-button {
+  position: fixed;
+  z-index: 40;
+  border: 0;
+  background: transparent;
+  color: #2C2C2C;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.68;
+  transition: opacity 0.22s ease;
+}
+
+.category-back-button {
+  left: 80px;
+  top: 70px;
+}
+
+.detail-back-button {
+  left: 20px;
+  top: 20px;
+  display: none;
+}
+
+.category-back-button:hover,
+.detail-back-button:hover {
+  opacity: 1;
+}
+
+.feature-page.detail-open .category-back-button {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.feature-page.detail-open .detail-back-button {
+  display: block;
+}
+
 .category-title {
   position: absolute;
   top: 112px;
@@ -587,7 +631,7 @@ body.category-page {
   margin: 0;
   color: #2C2C2C;
   font-size: 1.08rem;
-  font-weight: 200;
+  font-weight: 300;
   letter-spacing: 0.3em;
   line-height: 1;
 }
@@ -630,6 +674,10 @@ body.category-page {
   grid-template-columns: minmax(0, 520px) minmax(160px, 1fr);
   align-items: start;
   gap: 0 24px;
+}
+
+.project-process-item.has-title {
+  margin-top: 48px;
 }
 
 .project-process-item h4 {

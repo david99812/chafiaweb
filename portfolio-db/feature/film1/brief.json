@@ -3,7 +3,7 @@
     "category": "Short Film",
     "runtime": "09'53",
     "year": "2025",
-    "tools": "ue5,comfyui,c4d.",
+    "tools": "ue5,c4d,ae,dr,pr",
     "role": "Original artwork by Fia Cha",
     "youtubeUrl": "https://youtu.be/YEzJmII62Jc",
     "description": "Logline\nA humanoid, who admires human error, learns and repeats mistakes, ultimately leading to its own tragic end.\n\nConcept\nIf there were a robot that could feel human consciousness and emotions identically, and could perceive itself as an object, wouldn’t it also recognize the differences and boundaries between itself and humans? Wouldn't it eventually come to yearn for humanity? And what would be the end of that yearning? There are things a robot can never commit—such as making mistakes. Could a robot begin to long for errors? To a robot, a mistake is merely a technical error. Even if a robot were to learn mistakes, they would only be \"perfect\" mistakes. Once perfected, mistakes cease to be mistakes. Similarly, once there is intent behind the action, it is no longer a mistake. The robot may long for human errors, but it can never truly reach the essence of what they mean to humans. This leads to a profound tragedy for the robot, reflecting an existential contradiction and the absence of its own self.",
@@ -48,6 +48,86 @@
                 }
             ],
             "text": "- The glass material and opacity were custom made using direct Blueprints.\n- In the debugging room, the mirror material alone was causing the MetaHumans to disappear, so a SceneCapture cube was used to achieve the same effect."
+        },
+        {
+            "title": "Character design",
+            "images": [
+                {
+                    "src": "images/제작과정images/3.png",
+                    "caption": "face and body"
+                }
+            ],
+            "text": "The faces of real actors were 3D-captured (using the metahuman animator in the live link app) and meshes were created in UE5 using the metahuman creator. Later, each parameter was adjusted in UE5 to increase detail."
+        },
+        {
+            "title": "",
+            "images": [
+                {
+                    "src": "images/제작과정images/4.png",
+                    "caption": "broken body"
+                }
+            ],
+            "text": "The broken body was created using the modeling tools within UE5 on the existing Metahuman body."
+        },
+        {
+            "title": "",
+            "images": [
+                {
+                    "src": "images/제작과정images/5.png",
+                    "caption": "broken head"
+                }
+            ],
+            "text": "The severed head was isolated in the same way. The Tether plugin was used to create a StaticMesh of the wires and assemble it with the head inside the Blueprint. The blue blood was created using the decal function."
+        },
+        {
+            "title": "Animation",
+            "images": [
+                {
+                    "src": "images/제작과정images/6.png",
+                    "caption": "cloth animation"
+                }
+            ],
+            "text": "The clothing was created using Marvelous designer. After the costume was created, the Marvelous designer live link plugin was used to pull the metahuman animation in real-time in UE5 to create the cloth animation."
+        },
+        {
+            "title": "",
+            "images": [
+                {
+                    "src": "images/제작과정images/7.png",
+                    "caption": "motioncapture"
+                }
+            ],
+            "text": "The animation was created entirely using motion capture. The animation was done using Rokoko's Smart suit, which was exported to Unreal Engine after initial foot step cleaning in Rokoko studio."
+        },
+        {
+            "title": "",
+            "images": [
+                {
+                    "src": "images/제작과정images/8.png",
+                    "caption": "facial capture"
+                }
+            ],
+            "text": "The facial expressions and shapes of people were captured using the livelink app in conjunction with Ue5 to capture facial expressions. The captured data was exported as an Anim Sequence and cleaned and detailed."
+        },
+        {
+            "title": "",
+            "images": [
+                {
+                    "src": "images/제작과정images/9.png",
+                    "caption": "animation detail"
+                }
+            ],
+            "text": "The animation sequence imported from ROKOKO was animation retargeted to METAHUMAN and animated using UE5 Sequencer. After cleaning inside Sequencer, we stacked Additive animation layers to capture details."
+        },
+        {
+            "title": "",
+            "images": [
+                {
+                    "src": "images/제작과정images/10.png",
+                    "caption": "camera moving"
+                }
+            ],
+            "text": "The camera utilizes UE5's cinecam by default. For camera movement, we used the UE Vcam app for more realistic movement. The camera was shot using a real handheld gimbal with a Iphone attached to it using UE5 and Vcam."
         }
     ]
 }
