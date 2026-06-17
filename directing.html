@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -9,6 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400&display=swap" rel="stylesheet" />
 </head>
 <body class="category-page feature-page" data-category="directing">
+  <a class="category-back-button" href="index.html" aria-label="Back to FIA CHA main page">Back</a>
+
   <header class="category-header">
     <a class="home-link" href="index.html" aria-label="Back to home">FIA CHA</a>
     <h1 class="category-title">Directing</h1>
@@ -17,22 +19,23 @@
   <main class="category-main">
     <section class="film-gallery" aria-label="Directing projects">
       <button class="vertical-film vertical-film--hero" type="button" data-film="film1" aria-label="Directing project 1">
-        <img src="assets/images/film_frame2.webp" alt="" />
+        <img src="assets/images/film_frame2_v2.webp" alt="" />
       </button>
       <button class="vertical-film vertical-film--mid" type="button" data-film="film2" aria-label="Directing project 2">
-        <img src="assets/images/film_frame2.webp" alt="" />
+        <img src="assets/images/film_frame2_v2.webp" alt="" />
       </button>
       <button class="vertical-film vertical-film--right" type="button" data-film="film3" aria-label="Directing project 3">
-        <img src="assets/images/film_frame2.webp" alt="" />
+        <img src="assets/images/film_frame2_v2.webp" alt="" />
       </button>
       <button class="vertical-film vertical-film--back" type="button" data-film="film4" aria-label="Directing project 4">
-        <img src="assets/images/film_frame2.webp" alt="" />
+        <img src="assets/images/film_frame2_v2.webp" alt="" />
       </button>
     </section>
 
     <section class="feature-detail" aria-label="Selected directing project" aria-hidden="true">
+      <button class="detail-back-button" type="button" aria-label="Back to directing gallery">Back</button>
       <button class="feature-detail-film" type="button" aria-label="Back to directing gallery">
-        <img src="assets/images/film_frame2.webp" alt="" />
+        <img src="assets/images/film_frame2_v2.webp" alt="" />
       </button>
       <div class="feature-detail-panel" aria-label="Project detail area">
         <div class="feature-detail-content">
@@ -47,7 +50,7 @@
               </dl>
             </div>
             <div class="feature-video">
-              <iframe data-project-youtube title="Directing video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+              <iframe data-project-youtube title="Directing video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
             </div>
           </section>
           <section class="project-description" aria-label="Project description">
@@ -67,3 +70,4 @@
   <script src="category.js"></script>
 </body>
 </html>
+

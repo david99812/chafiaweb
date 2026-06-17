@@ -485,7 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getYouTubeEmbedUrl(project) {
     const id = getYouTubeId(project.youtubeId || project.youtubeUrl);
-    return id ? `https://www.youtube.com/embed/${id}` : "";
+    return id ? `https://www.youtube.com/embed/${id}?feature=oembed&rel=0&playsinline=1` : "";
   }
 
   async function loadProject(filmId) {
